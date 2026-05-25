@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>L'Écho des Astres & Oracle Universel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --surface: rgba(31, 33, 42, 0.75);
+            --gold: #d4af37;
+            --text-main: #e0e6ed;
+            --text-muted: #8a9ba8;
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: 'Lato', sans-serif; 
+            background: radial-gradient(circle at top, #1a1c29 0%, #0b0c10 100%); 
+            color: var(--text-main); 
+            padding: 20px; 
+            min-height: 100vh; 
+            line-height: 1.6; 
+        }
+
+        .stars { 
+            position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.3; 
+            background-image: radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)), 
+                              radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)); 
+            background-size: 400px 200px; 
+        }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .main-nav { 
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; 
+        }
+        .main-nav button { 
+            background: rgba(212, 175, 55, 0.1); 
+            color: var(--text-muted); 
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+            padding: 12px 25px; 
+            font-family: 'Playfair Display', serif; 
+            border-radius: 30px; cursor: pointer; transition: 0.3s;
+        }
+        .main-nav button.active { 
+            background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold;
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: var(--gold); font-weight: 400; text-align: center; }
+        h1 { font-size: 2.5em; margin-bottom: 5px; }
+        h2 { font-size: 1.8em; margin-bottom: 15px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 10px; }
+        .subtitle { text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 30px; }
+        
+        .card { 
+            background: var(--surface); padding: 30px; border-radius: 12px; 
+            border: 1px solid rgba(212, 175, 55, 0.15); margin-bottom: 30px; 
+        }
+
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.2); color: white; margin-bottom: 15px; border-radius: 5px 5px 0 0;
+            font-family: 'Lato', sans-serif;
+        }
+        input:focus { outline: none; border-bottom-color: var(--gold); }
+        
+        button.action-btn { 
+            background: transparent; color: var(--gold); border: 1px solid var(--gold); 
+            padding: 15px; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 10px; 
+            font-family: 'Playfair Display', serif; font-size: 1.1em; border-radius: 5px;
+        }
+        button.action-btn:hover { background: var(--gold); color: #000; }
+
+        .hidden { display: none !important; }
+        .section { background: rgba(20, 22, 30, 0.6); padding: 20px; margin: 15px 0; border: 1px solid rgba(212, 175, 55, 0.1); border-radius: 8px;}
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold);
+            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Styles pour l'Oracle */
+        .oracle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .oracle-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid rgba(212,175,55,0.2); }
+        .oracle-box h4 { color: var(--gold); margin-bottom: 10px; font-family: 'Playfair Display', serif; }
+        .oracle-box p { font-size: 1.2em; font-weight: bold; }
+
+        /* Impression */
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .card, .main-nav, .stars, .action-btn, input, #formBlockOracle, .loader { display: none !important; }
+            h1, h2, h3, h4 { color: black; }
+            .section, .oracle-box { border: 1px solid #ccc; background: transparent; break-inside: avoid; color: black; }
+            * { color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="container">
+    <div class="main-nav">
+        <button id="nav-btn-astrology" class="active" onclick="switchApp('astrology')">L'Écho des Astres</button>
+        <button id="nav-btn-oracle" onclick="switchApp('oracle')">Oracle Universel</button>
+    </div>
+
+    <div id="app-astrology">
+        <h1>L'Écho des Astres</h1>
+        <div class="subtitle">Lecture Astrale & Stratégie de Vie</div>
+        <div class="card" id="form-astrology">
+            <input type="date" id="birthdate-astro">
+            <input type="time" id="birthtime-astro">
+            <input type="text" id="birthplace-astro" placeholder="Lieu de naissance">
+            <input type="password" id="apiKey" placeholder="Clé d'accès">
+            <button class="action-btn" onclick="lancerAnalyse()">Révéler le Thème</button>
+        </div>
+        <div id="loading-astro" class="hidden">
+            <div class="loader"></div>
+            <p style="text-align: center; color: var(--gold);">Consultation des astres en cours...</p>
+        </div>
+        <div id="result-astro" class="hidden card">
+            <div id="content-astro"></div>
+            <button class="action-btn" onclick="window.print()" style="margin-top: 30px;">🖨️ Sauvegarder mon Thème</button>
+        </div>
+    </div>
+
+    <div id="app-oracle" class="hidden">
+        <h1>Oracle Universel</h1>
+        <div class="subtitle">Découvrez vos symboles à travers les traditions du monde</div>
+        <div class="card" id="form-oracle">
+            <input type="text" id="prenomOracle" placeholder="Votre Prénom">
+            <input type="date" id="naissanceOracle">
+            <button class="action-btn" id="genererOracle" onclick="calculerOracle()">✨ Calculer mes Traditions</button>
+        </div>
+
+        <div id="result-oracle" class="hidden card">
+            <h2>L'Oracle de <span id="nom-resultat-oracle"></span></h2>
+            <div class="oracle-grid">
+                <div class="oracle-box">
+                    <h4>Zodiaque Occidental</h4>
+                    <p id="oracle-occidental"></p>
+                </div>
+                <div class="oracle-box">
+                    <h4>Astrologie Chinoise</h4>
+                    <p id="oracle-chinois"></p>
+                </div>
+                <div class="oracle-box">
+                    <h4>Chemin de Vie</h4>
+                    <p id="oracle-numerologie"></p>
+                </div>
+            </div>
+            
+            <div class="section" style="margin-top: 30px;">
+                <h3>Interprétation Universelle</h3>
+                <p id="oracle-interpretation" style="margin-top: 15px; text-align: justify;"></p>
+            </div>
+
+            <button class="action-btn" onclick="window.print()" style="margin-top: 30px;">🖨️ Sauvegarder l'Oracle</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- GESTION DE LA NAVIGATION ---
+    function switchApp(appName) {
+        document.getElementById('app-astrology').classList.toggle('hidden', appName !== 'astrology');
+        document.getElementById('app-oracle').classList.toggle('hidden', appName !== 'oracle');
+        document.getElementById('nav-btn-astrology').classList.toggle('active', appName === 'astrology');
+        document.getElementById('nav-btn-oracle').classList.toggle('active', appName === 'oracle');
+    }
+
+    // --- LOGIQUE : L'ÉCHO DES ASTRES (API) ---
+    async function lancerAnalyse() {
+        const date = document.getElementById('birthdate-astro').value;
+        const time = document.getElementById('birthtime-astro').value;
+        const place = document.getElementById('birthplace-astro').value;
+        const apiKey = document.getElementById('apiKey').value;
+
+        if (!date || !time || !place || !apiKey) {
+            alert('Veuillez remplir tous les champs et fournir une clé d\'accès valide.');
+            return;
+        }
+
+        document.getElementById('form-astrology').classList.add('hidden');
+        document.getElementById('loading-astro').classList.remove('hidden');
+
+        const prompt = `Agis comme un maître astrologue empathique et direct. Fais l'analyse astrologique complète pour une personne née le ${date} à ${time} à ${place}. Structure ta réponse avec des titres clairs (Signe Solaire, Lunaire, Ascendant) et donne des conseils de vie pratiques.`;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            if (!response.ok) throw new Error('Erreur de connexion à l\'API');
+
+            const data = await response.json();
+            const text = data.candidates[0].content.parts[0].text;
+
+            document.getElementById('loading-astro').classList.add('hidden');
+            document.getElementById('result-astro').classList.remove('hidden');
+            document.getElementById('content-astro').innerHTML = marked.parse(text);
+
+        } catch (error) {
+            alert("Erreur lors de l'analyse : " + error.message);
+            document.getElementById('loading-astro').classList.add('hidden');
+            document.getElementById('form-astrology').classList.remove('hidden');
+        }
+    }
+
+    // --- LOGIQUE : ORACLE UNIVERSEL (CALCULS LOCAUX) ---
+    function calculerOracle() {
+        const prenom = document.getElementById('prenomOracle').value;
+        const dateStr = document.getElementById('naissanceOracle').value;
+
+        if (!prenom || !dateStr) {
+            alert("Veuillez entrer votre prénom et votre date de naissance.");
+            return;
+        }
+
+        const date = new Date(dateStr);
+        const jour = date.getDate();
+        const mois = date.getMonth() + 1;
+        const annee = date.getFullYear();
+
+        // 1. Zodiaque Occidental
+        const signeOccidental = getZodiacSign(jour, mois);
+        
+        // 2. Signe Chinois
+        const signesChinois = ["Singe", "Coq", "Chien", "Cochon", "Rat", "Buffle", "Tigre", "Lapin", "Dragon", "Serpent", "Cheval", "Chèvre"];
+        const signeChinois = signesChinois[annee % 12];
+
+        // 3. Chemin de Vie (Numérologie)
+        const cheminDeVie = getLifePath(dateStr);
+
+        // Affichage
+        document.getElementById('form-oracle').classList.add('hidden');
+        document.getElementById('result-oracle').classList.remove('hidden');
+        
+        document.getElementById('nom-resultat-oracle').textContent = prenom;
+        document.getElementById('oracle-occidental').textContent = signeOccidental;
+        document.getElementById('oracle-chinois').textContent = signeChinois;
+        document.getElementById('oracle-numerologie').textContent = cheminDeVie;
+        
+        // Petite interprétation générée localement
+        document.getElementById('oracle-interpretation').innerHTML = `L'alliance de votre énergie solaire en <strong>${signeOccidental}</strong> et de votre nature profonde de <strong>${signeChinois}</strong> crée une dynamique unique. Votre Chemin de Vie <strong>${cheminDeVie}</strong> vous invite à canaliser ces forces pour réaliser votre véritable potentiel spirituel et matériel.`;
+    }
+
+    function getZodiacSign(day, month) {
+        if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "Verseau ♒";
+        if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "Poissons ♓";
+        if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "Bélier ♈";
+        if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "Taureau ♉";
+        if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "Gémeaux ♊";
+        if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "Cancer ♋";
+        if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "Lion ♌";
+        if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "Vierge ♍";
+        if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "Balance ♎";
+        if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return "Scorpion ♏";
+        if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "Sagittaire ♐";
+        if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return "Capricorne ♑";
+        return "Inconnu";
+    }
+
+    function getLifePath(dateStr) {
+        let digits = dateStr.replace(/-/g, '');
+        let sum = 0;
+        for (let i = 0; i < digits.length; i++) {
+            sum += parseInt(digits[i]);
+        }
+        while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
+            let tempSum = 0;
+            let sumStr = sum.toString();
+            for (let i = 0; i < sumStr.length; i++) {
+                tempSum += parseInt(sumStr[i]);
+            }
+            sum = tempSum;
+        }
+        return sum;
+    }
+</script>
+</body>
+</html>
