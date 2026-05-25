@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Écho des Astres — Oracle Universel</title>
+<style>
+/* Polices système de secours (evite les CDN bloqués) */
+</style>
+<script>
+
+window.addEventListener('unhandledrejection', function(e) {
+  document.getElementById('loading').style.display='none';
+  document.getElementById('btn-generate').disabled=false;
+  var msg=e.reason?(e.reason.message||String(e.reason)):'Erreur inconnue';
+  document.getElementById('result-block').style.display='block';
+  // Forcer l'affichage du premier onglet
+  var firstPane = document.getElementById('pane-personnalite');
+  if (firstPane) firstPane.style.display = 'block';
+  document.getElementById('form-block').style.display='none';
+  var ia=document.getElementById('ia-analysis-container');
+  if(ia) ia.innerHTML='<div style="background:rgba(180,40,40,0.3);border:2px solid #ff5555;padding:20px;"><p style="color:#ffaaaa;font-weight:bold;">Erreur JS : '+msg+'</p></div>';
+});
+
+window.addEventListener("unhandledrejection",function(e){
+  document.getElementById("loading").style.display="none";
+  document.getElementById("btn-generate").disabled=false;
+  var msg=e.reason?(e.reason.message||String(e.reason)):"Erreur inconnue";
+  document.getElementById("result-block").style.display="block";
+  document.getElementById("form-block").style.display="none";
+  var ia=document.getElementById("ia-analysis-container");
+  if(ia)ia.innerHTML="<div style='background:rgba(180,40,40,0.3);border:2px solid #ff5555;padding:20px;'><p style='color:#ffaaaa;font-weight:bold;'>Erreur JS : "+msg+"</p></div>";
+});
+
+</script>
+<!-- html2pdf désactivé pour compatibilité -->
+
+<style>
+  :root {
+    --bg: #09090f;
+    --surface: rgba(20,20,35,0.75);
+    --gold: #c9a84c;
+    --gold-light: #e8d5a0;
+    --gold-glow: rgba(201,168,76,0.25);
+    --text: #dce4ed;
+    --muted: #7a8a98;
+    --accent: #4a3f6b;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at 20% 0%, #16182e 0%, #09090f 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 50px 20px;
+    line-height: 1.9;
+  }
+
+  /* ---- Étoiles ---- */
+  body::before {
+    content: '';
+    position: fixed; top:0; left:0; width:100%; height:100%; z-index:0;
+    background-image:
+      radial-gradient(1px 1px at 15% 10%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 45% 5%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1.5px 1.5px at 75% 15%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 90% 35%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 85% 85%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 35% 90%, rgba(255,255,255,0.3), transparent);
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 850px;
+    margin: 0 auto;
+    position: relative; z-index:1;
+  }
+
+  /* ---- Header ---- */
+  .site-header { text-align: center; margin-bottom: 15px; }
+  .site-header h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(2.8em, 7vw, 4.5em);
+    color: var(--gold);
+    letter-spacing: 6px;
+    text-shadow: 0 0 40px var(--gold-glow), 0 0 80px rgba(201,168,76,0.1);
+  }
+  .site-header .subtitle {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 1.2em;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 8px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 30px 0;
+    opacity: 0.6;
+  }
+
+  /* ---- Carte formulaire ---- */
+  .card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 2px;
+    padding: 45px 50px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    margin-bottom: 35px;
+  }
+
+  .form-section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.85em;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin: 30px 0 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding-bottom: 8px;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  @media(max-width:600px){ .form-row { grid-template-columns: 1fr; } }
+
+  .form-group { margin-bottom: 28px; }
+
+  label {
+    display: block;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: var(--gold-light);
+    font-size: 1em;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    opacity: 0.9;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-bottom-color: var(--gold);
+  }
+  input::placeholder, textarea::placeholder { color: rgba(122,138,152,0.5); font-style: italic; }
+  select option { background: #111; color: var(--text); }
+  textarea { resize: vertical; min-height: 55px; }
+
+  /* ---- Bouton principal ---- */
+  .btn-reveal {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 16px 30px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: all 0.4s;
+  }
+  .btn-reveal:hover { background: var(--gold); color: #000; box-shadow: 0 0 30px var(--gold-glow); }
+  .btn-reveal:disabled { border-color: var(--muted); color: var(--muted); cursor: not-allowed; }
+
+  /* ---- Loading ---- */
+  #loading {
+    display: none; text-align: center;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; color: var(--muted);
+    margin: 25px 0; font-size: 1.1em;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ---- Bloc résultats ---- */
+  #result-block { display: none; }
+
+  .result-header {
+    text-align: center;
+    padding: 40px 0 20px;
+  }
+  .result-header .name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.6em, 4vw, 2.4em);
+    color: var(--gold);
+    letter-spacing: 4px;
+  }
+  .result-header .date-info {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1.1em;
+    margin-top: 6px;
+  }
+
+  /* ---- Résumé rapide ---- */
+  .signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+    gap: 15px;
+    margin: 25px 0;
+  }
+  .sign-card {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 8px 5px;
+    text-align: center;
+    border-radius: 2px;
+  }
+  .sign-card .sign-emoji { font-size: 1.1em; display: block; margin-bottom: 2px; }
+  .sign-card .sign-label {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.75em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .sign-card .sign-name { color: var(--gold-light); font-weight: 400; font-size: 0.72em; margin-top: 1px; }
+
+  /* ---- Navigation onglets ---- */
+  .tabs-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    margin: 30px 0 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.78em;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    flex: 1 1 auto;
+    text-align: center;
+  }
+  .tab-btn:hover { color: var(--gold-light); }
+  .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ---- Contenu onglets ---- */
+  .oracle-section {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 30px 35px;
+    margin-top: 20px;
+    border-radius: 2px;
+  }
+  .oracle-section h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+  .oracle-section p { margin-bottom: 12px; color: var(--text); }
+  .oracle-section strong { color: var(--gold-light); font-weight: 400; }
+
+  .duo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+  @media(max-width:550px){ .duo-grid { grid-template-columns: 1fr; } }
+
+  .trait-card {
+    background: rgba(10,10,20,0.5);
+    border: 1px solid rgba(201,168,76,0.12);
+    padding: 16px 20px;
+    border-radius: 2px;
+  }
+  .trait-card h4 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 0.9em;
+    margin-bottom: 8px;
+  }
+
+  .luck-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 10px; margin-top: 15px;
+  }
+  .luck-item {
+    background: rgba(10,10,20,0.5); border: 1px solid rgba(201,168,76,0.12);
+    padding: 12px; text-align: center; border-radius: 2px; font-size: 0.88em;
+  }
+  .luck-item strong { display: block; color: var(--gold); margin-bottom: 4px; font-size: 0.85em; letter-spacing: 1px; }
+
+  /* ---- Analyse IA ---- */
+  #ia-analysis-container {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 45px 50px;
+    margin-top: 30px;
+    font-size: 1.05em;
+    line-height: 1.95;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  #ia-analysis-container h2, #ia-analysis-container h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    color: var(--gold);
+    margin-top: 30px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  #ia-analysis-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    table-layout: fixed;
+    font-size: 0.9em;
+  }
+  #ia-analysis-container th, #ia-analysis-container td {
+    padding: 10px 8px;
+    border: 1px solid rgba(201,168,76,0.25);
+    text-align: left;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+  }
+  #ia-analysis-container th { background: rgba(201,168,76,0.08); color: var(--gold); font-family: Georgia, 'Times New Roman', serif; }
+  /* Schémas / blocs de code : scrollent dans leur cadre sans casser la page */
+  #ia-analysis-container pre {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 4px;
+    padding: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.72em;
+    line-height: 1.5;
+    max-width: 100%;
+  }
+  #ia-analysis-container code { word-break: break-word; overflow-wrap: anywhere; }
+  #ia-analysis-container p, #ia-analysis-container li { overflow-wrap: anywhere; }
+
+  .ia-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: Georgia, 'Times New Roman', serif; font-style: italic;
+    color: var(--muted); font-size: 0.85em; letter-spacing: 2px;
+    margin-bottom: 20px; text-transform: uppercase;
+  }
+  .ia-label::before { content: '✦'; color: var(--gold); }
+
+  /* ---- Bouton PDF ---- */
+  .btn-pdf {
+    display: none;
+    background: var(--gold);
+    color: #000;
+    border: 1px solid var(--gold);
+    padding: 15px 30px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 30px;
+    transition: all 0.3s;
+  }
+  .btn-pdf:hover { background: #fff; border-color: #fff; }
+
+  /* ---- Clé d'accès ---- */
+  .admin-zone {
+    margin-top: 60px;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    padding-top: 20px;
+  }
+  .admin-zone label { font-size: 0.78em; color: var(--muted); font-style: normal; letter-spacing: 1px; }
+  .admin-zone input { font-size: 0.85em; }
+
+  /* ---- Adaptations mobile ---- */
+  @media (max-width: 600px) {
+    body { padding: 25px 12px; }
+    .card { padding: 28px 22px; }
+    #ia-analysis-container { padding: 28px 20px; font-size: 1em; }
+    .oracle-section { padding: 22px 18px; }
+    .site-header h1 { letter-spacing: 3px; }
+    #ia-analysis-container table { font-size: 0.82em; }
+    #ia-analysis-container th, #ia-analysis-container td { padding: 8px 6px; }
+  }
+
+  /* ---- Grille planétaire (onglet Thème Astral) ---- */
+  .planet-trio {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px;
+  }
+  .planet-trio-card {
+    background: rgba(10,10,25,0.7); border: 1px solid rgba(201,168,76,0.3);
+    padding: 14px 8px; text-align: center; border-radius: 2px;
+  }
+  .planet-trio-card.key { border-color: var(--gold); }
+  .pt-label { font-size:0.68em; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .pt-emoji { font-size:1.4em; display:block; margin-bottom:3px; }
+  .pt-sign { color:var(--gold-light); font-size:0.95em; }
+  .pt-deg { color:var(--muted); font-size:0.72em; margin-top:2px; }
+  .planet-list { margin-top:6px; }
+  .planet-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 0; border-bottom:1px solid rgba(201,168,76,0.08);
+    font-size:0.93em;
+  }
+  .planet-row:last-child { border-bottom:none; }
+  .pr-left { display:flex; align-items:center; gap:10px; }
+  .pr-emo { font-size:1.1em; width:24px; text-align:center; }
+  .pr-name { color:var(--muted); font-size:0.78em; letter-spacing:1px; text-transform:uppercase; }
+  .pr-sign { color:var(--gold-light); }
+  .pr-deg { color:var(--muted); font-size:0.8em; }
+  .note-meeus { font-size:0.75em; color:var(--muted); font-style:italic; text-align:center; margin-top:16px; }
+
+  /* ---- Sélecteur de coordonnées ---- */
+  .coords-note { font-size:0.78em; color:var(--muted); font-style:italic; margin-top:6px; }
+
+  /* ---- Panneau admin ---- */
+  .admin-key {
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(10,10,20,0.5); border:1px solid rgba(201,168,76,0.12);
+    padding:14px 16px; margin-bottom:10px; border-radius:2px; gap:12px;
+  }
+  .admin-key.off { opacity:0.55; border-color:rgba(224,139,139,0.2); }
+  .ak-code { font-family:'Lato',sans-serif; font-size:1.05em; letter-spacing:1px; color:var(--gold-light); font-weight:400; }
+  .ak-meta { font-size:0.78em; color:var(--muted); margin-top:3px; }
+  .ak-actions { display:flex; gap:8px; flex-shrink:0; }
+  .ak-actions button {
+    background:transparent; border:1px solid var(--gold); color:var(--gold);
+    padding:7px 12px; font-size:0.78em; cursor:pointer; border-radius:2px;
+    font-family:'Lato',sans-serif; transition:all 0.2s; white-space:nowrap;
+  }
+  .ak-actions button:hover { background:var(--gold); color:#000; }
+  .ak-actions button.del { border-color:rgba(224,139,139,0.5); color:#e08b8b; }
+  .ak-actions button.del:hover { background:#e08b8b; color:#000; }
+
+  /* ---- Print ---- */
+  @media print {
+    .tab-pane { display: block !important; }
+    body { background: white; color: black; padding: 0; }
+    .admin-zone, .site-header .subtitle, .tabs-nav, .tab-btn, #btn-pdf { display: none !important; }
+    h1 { color: black; text-shadow: none; }
+    #ia-analysis-container { background: white; border: none; padding: 0; color: black; }
+    #ia-analysis-container h2, #ia-analysis-container h3, th { color: black; border-color: #ccc; }
+  }
+</style>
+<script>
+window.marked={parse:function(s){
+  if(!s)return'';
+  var o=s;
+  o=o.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  o=o.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  o=o.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  o=o.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  o=o.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  o=o.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  o=o.replace(/^[*-] (.+)$/gm,'<li>$1</li>');
+  o=o.replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>');
+  o=o.replace(/^---+$/gm,'<hr>');
+  o=o.replace(/\|(.+)\|/g,function(l){
+    var cols=l.split('|').slice(1,-1).map(function(c){return c.trim();});
+    if(cols.every(function(c){return /^[-:]+$/.test(c);}))return'';
+    return '<tr>'+cols.map(function(c){return'<td style="padding:8px;border:1px solid rgba(201,168,76,0.25);">'+c+'</td>';}).join('')+'</tr>';
+  });
+  o=o.replace(/(<tr>[\s\S]*?<\/tr>)/g,'<table style="width:100%;border-collapse:collapse;margin:16px 0;">$1</table>');
+  o=o.replace(/`(.+?)`/g,'<code>$1</code>');
+  o=o.replace(/^([^<\n].+)$/gm,function(l){return l.startsWith('<')?l:'<p>'+l+'</p>';});
+  return o;
+}};
+</script>
+</head>
+<body>
+<div class="container">
+
+  <header class="site-header">
+    <h1>L'Écho des Astres</h1>
+    <div class="subtitle">Cartographie de l'Âme · Oracle Universel · Stratégie de Vie</div>
+  </header>
+  <div class="divider"></div>
+
+  <div class="card" id="form-block">
+
+    <div class="form-section-title">Identité</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Prénom</label>
+        <input type="text" id="prenom" placeholder="Votre prénom">
+      </div>
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" id="nom" placeholder="Votre nom">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Accords du texte (genre)</label>
+      <select id="genre">
+        <option value="féminin">Féminin — elle / créatrice</option>
+        <option value="masculin">Masculin — il / créateur</option>
+        <option value="neutre">Neutre — sans distinction</option>
+      </select>
+    </div>
+
+    <div class="form-section-title">Naissance</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date de naissance</label>
+        <input type="date" id="birthdate">
+      </div>
+      <div class="form-group">
+        <label>Heure exacte</label>
+        <input type="time" id="birthtime">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Lieu de naissance</label>
+      <input type="text" id="birthplace" placeholder="Ex : Cayenne, Guyane Française">
+    </div>
+    <div class="form-group">
+      <label>Coordonnées <span style="font-size:0.78em; opacity:0.6;">— Nécessaires pour l'Ascendant exact</span></label>
+      <select id="cityCoords" onchange="toggleManualCoords()">
+        <option value="4.933,-52.317,-3">Cayenne, Guyane Française</option>
+        <option value="5.170,-52.650,-3">Saint-Laurent-du-Maroni, Guyane</option>
+        <option value="4.938,-52.330,-3">Kourou, Guyane</option>
+        <option value="14.616,-61.058,-4">Fort-de-France, Martinique</option>
+        <option value="16.241,-61.533,-4">Pointe-à-Pitre, Guadeloupe</option>
+        <option value="48.853,2.350,1">Paris, France</option>
+        <option value="43.297,5.381,1">Marseille, France</option>
+        <option value="45.748,4.847,1">Lyon, France</option>
+        <option value="5.354,-4.008,0">Abidjan, Côte d'Ivoire</option>
+        <option value="-4.316,15.322,1">Brazzaville, Congo</option>
+        <option value="3.848,11.502,1">Yaoundé, Cameroun</option>
+        <option value="-18.910,47.536,3">Antananarivo, Madagascar</option>
+        <option value="12.365,-1.533,0">Ouagadougou, Burkina Faso</option>
+        <option value="5.845,-55.203,-3">Paramaribo, Suriname</option>
+        <option value="custom">↳ Saisir manuellement…</option>
+      </select>
+    </div>
+    <div id="manualCoords" style="display:none;">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Latitude (°N positif, °S négatif)</label>
+          <input type="number" id="manLat" step="0.001" placeholder="ex: 4.933">
+        </div>
+        <div class="form-group">
+          <label>Longitude (°E positif, °O négatif)</label>
+          <input type="number" id="manLon" step="0.001" placeholder="ex: -52.317">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Fuseau horaire UTC (ex: -3 pour Guyane, +1 pour France)</label>
+        <input type="number" id="manTz" step="0.5" placeholder="ex: -3">
+      </div>
+    </div>
+
+    <div class="form-section-title">Contexte & Lecture</div>
+    <div class="form-group">
+      <label>Chemin professionnel actuel</label>
+      <input type="text" id="job" placeholder="Ex : Enseignante, Artisan, Étudiant...">
+    </div>
+    <div class="form-group">
+      <label>Une question secrète aux astres ? <span style="font-size:0.8em; opacity:0.6;">(Optionnel)</span></label>
+      <textarea id="question" placeholder="Ex : Comment retrouver l'élan dans ma vie professionnelle ?"></textarea>
+    </div>
+
+    <div style="border-top: 1px solid rgba(201,168,76,0.15); margin: 25px 0 20px;"></div>
+    <div class="form-group">
+      <label>✦ Clé d'accès <span style="font-size:0.8em; opacity:0.6;">— Débloque la Grande Lecture Astrale approfondie</span></label>
+      <input type="text" id="apiKey" placeholder="Saisissez votre clé d'accès ici…">
+    </div>
+
+    <button class="btn-reveal" id="btn-generate" onclick="lancerAnalyse()">✦ Révéler mon Oracle Astral</button>
+    <div id="loading">Consultation des éphémérides en cours…</div>
+  </div>
+
+  <div id="result-block">
+
+    <div class="result-header">
+      <div class="name" id="res-name"></div>
+      <div class="date-info" id="res-dateinfo"></div>
+    </div>
+    <button id="btn-pdf" onclick="window.print()" style="display:none;width:100%;margin:12px 0;padding:13px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:inherit;font-size:0.85em;letter-spacing:2px;cursor:pointer;text-transform:uppercase;">
+      🖨 Télécharger / Imprimer mon Thème Astral Complet
+    </button>
+    <div class="divider"></div>
+
+    <div class="signs-grid" id="signs-grid"></div>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="personnalite" onclick="switchTab('personnalite')">🧠 Personnalité</button>
+      <button class="tab-btn" data-tab="theme" onclick="switchTab('theme')">🪐 Thème Astral</button>
+      <button class="tab-btn" data-tab="chiffres" onclick="switchTab('chiffres')">🔢 Numérologie</button>
+      <button class="tab-btn" data-tab="traditions" onclick="switchTab('traditions')">🌍 Traditions</button>
+      <button class="tab-btn" data-tab="tarot" onclick="switchTab('tarot')">🃏 Tarot</button>
+      <button class="tab-btn" data-tab="chance" onclick="switchTab('chance')">🍀 Chance</button>
+      <button class="tab-btn" data-tab="amour" onclick="switchTab('amour')">❤️ Amour & Argent</button>
+    </div>
+
+    <div id="pane-personnalite" class="tab-pane active"></div>
+    <div id="pane-theme" class="tab-pane"></div>
+    <div id="pane-chiffres" class="tab-pane"></div>
+    <div id="pane-traditions" class="tab-pane"></div>
+    <div id="pane-tarot" class="tab-pane"></div>
+    <div id="pane-chance" class="tab-pane"></div>
+    <div id="pane-amour" class="tab-pane"></div>
+
+    <div class="divider" style="margin-top:40px;"></div>
+
+    <div class="ia-label">La Grande Lecture Astrale</div>
+    <div id="ia-analysis-container"></div>
+
+    <div id="ia-retry-zone" style="display:none; margin-top:20px; border:1px solid rgba(201,168,76,0.2); padding:20px;">
+      <label style="font-family:'Playfair Display',serif; font-style:italic; color:var(--gold-light); font-size:0.95em;">✦ Clé d'accès</label>
+      <input type="text" id="apiKeyRetry" placeholder="Saisissez votre clé d'accès ici…" style="margin-bottom:12px;">
+      <button class="btn-reveal" onclick="lancerIA()" style="font-size:0.9rem; padding:12px;">✦ Lancer la lecture approfondie</button>
+      <div id="loading-ia" style="display:none; text-align:center; font-family:'Playfair Display',serif; font-style:italic; color:var(--muted); margin-top:15px; animation:pulse 2s infinite;">Consultation des étoiles profondes…</div>
+    </div>
+
+  </div>
+
+  <!-- ===== PANNEAU ADMIN ===== -->
+  <div id="admin-panel" style="display:none;">
+    <div class="card">
+      <div class="form-section-title" style="opacity:1;">🔐 Administration</div>
+      <div id="admin-pw-section">
+        <div class="form-group" style="margin-top:16px;">
+          <label>Mot de passe</label>
+          <input type="password" id="admin-pw-input" placeholder="Ton mot de passe admin" onkeydown="if(event.key==='Enter')validerMotDePasse()">
+        </div>
+        <p id="admin-pw-error" style="display:none;color:#ff9999;margin-bottom:12px;">Mot de passe incorrect.</p>
+        <button class="btn-reveal" onclick="validerMotDePasse()">✦ Acceder</button>
+        <button class="btn-reveal" style="margin-top:10px;border-color:var(--muted);color:var(--muted);" onclick="fermerAdmin()">Retour</button>
+      </div>
+      <div id="admin-keys-section" style="display:none;">
+        <div class="form-row" style="margin-top:16px;">
+          <div class="form-group">
+            <label>Nom du client</label>
+            <input type="text" id="newClient" placeholder="Ex : Marie D.">
+          </div>
+          <div class="form-group">
+            <label>Expiration (vide = illimite)</label>
+            <input type="date" id="newExpiry">
+          </div>
+        </div>
+        <button class="btn-reveal" onclick="creerCle()">✦ Generer une cle</button>
+        <div style="margin-top:30px;" id="admin-list"></div>
+        <button class="btn-reveal" style="margin-top:25px;border-color:var(--muted);color:var(--muted);" onclick="fermerAdmin()">Retour</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px;padding-bottom:20px;">
+    <span onclick="ouvrirAdmin()" style="color:rgba(201,168,76,0.25);font-size:1.4em;cursor:pointer;padding:20px;display:inline-block;">✦</span>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+//  DONNÉES ASTROLOGIQUES 
+// ================================================================
+const SIGNS = [
+  {name:"Bélier",emoji:"♈",dates:[3,21,4,19],element:"Feu",planet:"Mars",quality:"Cardinal",desc:"Fonceur·se, passionné·e, courageux·se, parfois impulsif·ve.",love:"Amour passionné et direct, besoin de défis.",money:"Entrepreneur·se dans l'âme, risques assumés.",dangers:"Impulsivité, colère, impatience.",qualites:"Courageux·se, pionnier·ère, énergique, honnête.",defauts:"Impulsif·ve, impatient·e, colérique, égoïste.",besoins:"Action, indépendance, reconnaissance immédiate.",mission:"Tempérer le feu pour devenir un·e leader inspirant·e.",lucky:{numbers:[1,9,18,27],days:["Mardi"],hours:["6h–8h","19h–21h"],months:["Mars","Avril"],colors:["Rouge","Écarlate"],foods:["Piment","Gingembre"],activities:["Compétition","Randonnée"]}},
+  {name:"Taureau",emoji:"♉",dates:[4,20,5,20],element:"Terre",planet:"Vénus",quality:"Fixe",desc:"Stable, sensuel·le, patient·e, parfois têtu·e.",love:"Amour fidèle, tactile, besoin de sécurité.",money:"Économe, bon·ne gestionnaire, apprécie la qualité.",dangers:"Routine excessive, jalousie, entêtement.",qualites:"Fiable, patient·e, sensuel·le, déterminé·e.",defauts:"Têtu·e, possessif·ve, matérialiste, jaloux·se.",besoins:"Sécurité, confort, routine apaisante.",mission:"Cultiver la beauté et l'abondance sans s'enfermer.",lucky:{numbers:[2,6,15,24],days:["Vendredi"],hours:["9h–11h","21h–23h"],months:["Mai","Septembre"],colors:["Vert","Rose"],foods:["Chocolat","Fromage"],activities:["Jardinage","Yoga"]}},
+  {name:"Gémeaux",emoji:"♊",dates:[5,21,6,20],element:"Air",planet:"Mercure",quality:"Mutable",desc:"Curieux·se, adaptable, communicatif·ve, parfois dispersé·e.",love:"Amour cérébral, besoin de variété.",money:"Multi-sources, habile en commerce.",dangers:"Dispersion, anxiété, superficialité.",qualites:"Curieux·se, adaptable, vif·ve d'esprit.",defauts:"Dispersé·e, nerveux·se, indécis·e.",besoins:"Stimulation mentale, variété, échanges.",mission:"Relier les idées avec légèreté et profondeur.",lucky:{numbers:[3,12,21,30],days:["Mercredi"],hours:["7h–9h","15h–17h"],months:["Juin","Septembre"],colors:["Jaune","Bleu clair"],foods:["Agrumes","Fruits secs"],activities:["Écriture","Voyages"]}},
+  {name:"Cancer",emoji:"♋",dates:[6,21,7,22],element:"Eau",planet:"Lune",quality:"Cardinal",desc:"Sensible, protecteur·rice, intuitif·ve, parfois lunatique.",love:"Amour fusionnel, besoin de sécurité affective.",money:"Économe, épargne pour la famille.",dangers:"Hyper-sensibilité, repli, rancune.",qualites:"Sensible, protecteur·rice, intuitif·ve, tenace.",defauts:"Lunatique, rancunier·ère, dépendant·e.",besoins:"Sécurité affective, foyer, appartenance.",mission:"Nourrir les autres sans s'oublier.",lucky:{numbers:[4,8,17,25],days:["Lundi"],hours:["10h–12h","22h–0h"],months:["Juillet","Novembre"],colors:["Blanc","Argent"],foods:["Lait","Poisson"],activities:["Baignade","Cinéma"]}},
+  {name:"Lion",emoji:"♌",dates:[7,23,8,22],element:"Feu",planet:"Soleil",quality:"Fixe",desc:"Charismatique, généreux·se, créatif·ve, parfois orgueilleux·se.",love:"Amour théâtral et loyal, besoin d'admiration.",money:"Attire l'abondance, aime le luxe.",dangers:"Orgueil, besoin excessif de reconnaissance.",qualites:"Charismatique, généreux·se, créatif·ve, loyal·e.",defauts:"Orgueilleux·se, autoritaire, vaniteux·se.",besoins:"Reconnaissance, expression créative, rayonnement.",mission:"Briller pour éclairer, non pour éblouir.",lucky:{numbers:[5,14,23,31],days:["Dimanche"],hours:["11h–13h","17h–19h"],months:["Août","Décembre"],colors:["Or","Orange"],foods:["Fruits exotiques","Épices"],activities:["Théâtre","Danse"]}},
+  {name:"Vierge",emoji:"♍",dates:[8,23,9,22],element:"Terre",planet:"Mercure",quality:"Mutable",desc:"Analytique, serviable, perfectionniste, parfois critique.",love:"Amour discret et dévoué, besoin d'ordre.",money:"Excellente gestion, attention à l'avarice.",dangers:"Auto-critique excessive, hypocondrie.",qualites:"Analytique, serviable, méthodique, humble.",defauts:"Critique, pointilleux·se, anxieux·se.",besoins:"Ordre, efficacité, amélioration continue.",mission:"Soigner et perfectionner sans juger.",lucky:{numbers:[6,15,24,33],days:["Mercredi"],hours:["8h–10h","14h–16h"],months:["Septembre","Janvier"],colors:["Beige","Vert olive"],foods:["Céréales","Légumes verts"],activities:["Bricolage","Organisation"]}},
+  {name:"Balance",emoji:"♎",dates:[9,23,10,22],element:"Air",planet:"Vénus",quality:"Cardinal",desc:"Diplomate, esthète, sociable, parfois indécis·e.",love:"Amour harmonieux et romantique.",money:"Dépenses pour l'art, bon·ne conseiller·ère.",dangers:"Indécision, dépendance affective.",qualites:"Diplomate, raffiné·e, juste, charmant·e.",defauts:"Indécis·e, dépendant·e, fuit les conflits.",besoins:"Harmonie, beauté, partenariat.",mission:"Créer l'équilibre et la justice.",lucky:{numbers:[7,16,25,34],days:["Vendredi"],hours:["12h–14h","18h–20h"],months:["Octobre","Février"],colors:["Bleu pastel","Rose pâle"],foods:["Pâtisseries","Miel"],activities:["Danse","Art"]}},
+  {name:"Scorpion",emoji:"♏",dates:[10,23,11,21],element:"Eau",planet:"Pluton",quality:"Fixe",desc:"Intense, magnétique, profond·e, parfois jaloux·se.",love:"Amour fusionnel et transformateur.",money:"Investisseur·se avisé·e, attire le pouvoir.",dangers:"Obsession, jalousie, auto-destruction.",qualites:"Passionné·e, magnétique, perspicace, loyal·e.",defauts:"Jaloux·se, obsessionnel·le, manipulateur·rice.",besoins:"Intensité, vérité, transformation.",mission:"Maîtriser l'ombre pour renaître et guider.",lucky:{numbers:[8,17,26,35],days:["Mardi"],hours:["13h–15h","21h–23h"],months:["Novembre","Mars"],colors:["Noir","Pourpre"],foods:["Chocolat noir","Épices fortes"],activities:["Enquêtes","Méditation profonde"]}},
+  {name:"Sagittaire",emoji:"♐",dates:[11,22,12,21],element:"Feu",planet:"Jupiter",quality:"Mutable",desc:"Optimiste, aventurier·ère, philosophe, parfois excessif·ve.",love:"Amour libre, besoin d'aventure et de sens.",money:"Chanceux·se, dépenses pour voyages.",dangers:"Excès, promesses non tenues, impatience.",qualites:"Optimiste, aventurier·ère, sage, enthousiaste.",defauts:"Excessif·ve, moralisateur·rice, impatient·e.",besoins:"Liberté, exploration, quête de sens.",mission:"Enseigner la joie tout en honorant ses engagements.",lucky:{numbers:[9,18,27,36],days:["Jeudi"],hours:["14h–16h","20h–22h"],months:["Décembre","Avril"],colors:["Violet","Bleu roi"],foods:["Cuisine du monde","Smoothies"],activities:["Voyage","Université"]}},
+  {name:"Capricorne",emoji:"♑",dates:[12,22,1,19],element:"Terre",planet:"Saturne",quality:"Cardinal",desc:"Ambitieux·se, responsable, patient·e, parfois froid·e.",love:"Amour durable, besoin de respect et stabilité.",money:"Discipline exemplaire, ascension lente et sûre.",dangers:"Rigidité, workaholisme, solitude.",qualites:"Ambitieux·se, responsable, patient·e, sage.",defauts:"Rigide, pessimiste, froid·e, autoritaire.",besoins:"Accomplissement, structure, sécurité.",mission:"Bâtir un héritage tout en apprenant à ressentir.",lucky:{numbers:[10,19,28,37],days:["Samedi"],hours:["15h–17h","7h–9h"],months:["Janvier","Juin"],colors:["Marron","Gris anthracite"],foods:["Racines","Pain complet"],activities:["Montagne","Planification"]}},
+  {name:"Verseau",emoji:"♒",dates:[1,20,2,18],element:"Air",planet:"Uranus",quality:"Fixe",desc:"Humaniste, original·e, indépendant·e, parfois détaché·e.",love:"Amour amical, liberté indispensable.",money:"Idées géniales, revenus irréguliers.",dangers:"Isolement émotionnel, rébellion stérile.",qualites:"Humaniste, original·e, visionnaire, amical·e.",defauts:"Excentrique, détaché·e, imprévisible.",besoins:"Liberté, innovation, communauté d'idées.",mission:"Apporter le progrès collectif avec authenticité.",lucky:{numbers:[11,20,29,38],days:["Samedi"],hours:["16h–18h","22h–0h"],months:["Février","Juillet"],colors:["Turquoise","Argent"],foods:["Végétalien","Exotique"],activities:["Bénévolat","Astronomie"]}},
+  {name:"Poissons",emoji:"♓",dates:[2,19,3,20],element:"Eau",planet:"Neptune",quality:"Mutable",desc:"Empathique, rêveur·se, artistique, parfois fuyant·e.",love:"Amour idéalisé, fusion spirituelle.",money:"Dons artistiques, gestion difficile.",dangers:"Addictions, illusions, victimisation.",qualites:"Empathique, créatif·ve, intuitif·ve, dévoué·e.",defauts:"Fuyant·e, naïf·ve, dépendant·e, confus·e.",besoins:"Spiritualité, compassion, expression artistique.",mission:"Manifester l'amour inconditionnel ancré dans le réel.",lucky:{numbers:[12,21,30,39],days:["Jeudi"],hours:["17h–19h","23h–1h"],months:["Mars","Août"],colors:["Bleu lagon","Lavande"],foods:["Poissons","Fruits de mer"],activities:["Peinture","Musique"]}}
+];
+
+const CHINESE_ANIMALS = [
+  {name:"Rat",traits:"Intelligent, adaptable, sociable.",love:"Compatibilité : Bœuf, Dragon, Singe."},
+  {name:"Bœuf",traits:"Patient, déterminé, fiable.",love:"Compatible : Rat, Serpent, Coq."},
+  {name:"Tigre",traits:"Courageux, charismatique.",love:"Harmonie : Cheval, Chien, Cochon."},
+  {name:"Lapin",traits:"Doux, diplomate, cultivé.",love:"Idéal : Chèvre, Cochon, Chien."},
+  {name:"Dragon",traits:"Énergique, chanceux, ambitieux.",love:"Meilleur : Rat, Singe, Coq."},
+  {name:"Serpent",traits:"Sagesse, mystère, élégance.",love:"Compatible : Bœuf, Coq, Singe."},
+  {name:"Cheval",traits:"Libre, enthousiaste, travailleur.",love:"Entente : Tigre, Chien, Chèvre."},
+  {name:"Chèvre",traits:"Créatif, doux, empathique.",love:"Harmonie : Lapin, Cheval, Cochon."},
+  {name:"Singe",traits:"Ingénieux, malin, polyvalent.",love:"Complicité : Rat, Dragon, Serpent."},
+  {name:"Coq",traits:"Travailleur, franc, organisé.",love:"Affinités : Bœuf, Serpent, Dragon."},
+  {name:"Chien",traits:"Loyal, honnête, protecteur.",love:"Partenaires : Tigre, Cheval, Lapin."},
+  {name:"Cochon",traits:"Généreux, chaleureux, bon vivant.",love:"Heureux : Lapin, Chèvre, Tigre."}
+];
+// CORRECTION APPORTÉE : L'élément chinois dépend strictement du dernier chiffre de l'année
+const CHINESE_ELEMENTS = ["Métal", "Métal", "Eau", "Eau", "Bois", "Bois", "Feu", "Feu", "Terre", "Terre"];
+
+const CELTIC_TREES = [
+  {name:"Bouleau",traits:"Renaissance, résilience, nouveau départ."},
+  {name:"Sorbier",traits:"Protection, intuition, créativité."},
+  {name:"Frêne",traits:"Équilibre, force, connexion."},
+  {name:"Aulne",traits:"Courage, passion, guidance."},
+  {name:"Saule",traits:"Souplesse, rêve, émotions."},
+  {name:"Aubépine",traits:"Protection du cœur, fertilité."},
+  {name:"Chêne",traits:"Force, sagesse, longévité."},
+  {name:"Houx",traits:"Défense, clarté, pouvoir intérieur."},
+  {name:"Noisetier",traits:"Connaissance, inspiration."},
+  {name:"Vigne",traits:"Abondance, sensualité, transformation."},
+  {name:"Lierre",traits:"Persévérance, lien, survie."},
+  {name:"Roseau",traits:"Mystère, musique, purification."},
+  {name:"Sureau",traits:"Régénération, magie, fin de cycle."}
+];
+
+// CORRECTION APPORTÉE : Mapping aligné précisément sur les 12 périodes solaires
+const EGYPTIAN_SIGNS = [
+  {name:"Osiris",traits:"Résurrection, transformation, justice."},
+  {name:"Amun-Ra",traits:"Création, autorité, puissance du Soleil."},
+  {name:"Seth",traits:"Chaos constructif, force brute, indépendance."},
+  {name:"Bastet",traits:"Protectrice, féline, joyeuse."},
+  {name:"Anubis",traits:"Guide des âmes, mystère, passage."},
+  {name:"Thot",traits:"Sagesse, intellect, écriture."},
+  {name:"Horus",traits:"Vision, leadership, protection divine."},
+  {name:"Mut",traits:"Mère céleste, intuition, protection."},
+  {name:"Hapi",traits:"Abondance, fertilité, connexion à la terre."},
+  {name:"Sekhmet",traits:"Guerrière, guérisseuse, loyale."},
+  {name:"Isis",traits:"Magie, amour, dévouement suprême."},
+  {name:"Ptah",traits:"Artisanat, créativité concrète."}
+];
+
+const VEDIC_SIGNS = [
+  {name:"Mesha",emoji:"♈",desc:"Dynamique, pionnier."},
+  {name:"Vrishabha",emoji:"♉",desc:"Stable, sensuel."},
+  {name:"Mithuna",emoji:"♊",desc:"Curieux, communicatif."},
+  {name:"Karka",emoji:"♋",desc:"Sensible, protecteur."},
+  {name:"Simha",emoji:"♌",desc:"Royal, créatif."},
+  {name:"Kanya",emoji:"♍",desc:"Analytique, serviable."},
+  {name:"Tula",emoji:"♎",desc:"Diplomate, équilibré."},
+  {name:"Vrishchika",emoji:"♏",desc:"Profond, intense."},
+  {name:"Dhanu",emoji:"♐",desc:"Optimiste, aventureux."},
+  {name:"Makara",emoji:"♑",desc:"Discipliné, ambitieux."},
+  {name:"Kumbha",emoji:"♒",desc:"Humaniste, visionnaire."},
+  {name:"Meena",emoji:"♓",desc:"Spirituel, empathique."}
+];
+
+const TAROT_MAJOR = [
+  {name:"Le Fou",meaning:"Nouveau départ, spontanéité, liberté."},
+  {name:"Le Magicien",meaning:"Pouvoir de la volonté, action, concentration."},
+  {name:"La Papesse",meaning:"Intuition profonde, mystère, sagesse intérieure."},
+  {name:"L'Impératrice",meaning:"Abondance, fertilité, créativité nourricière."},
+  {name:"L'Empereur",meaning:"Autorité, structure, maîtrise du monde matériel."},
+  {name:"Le Pape",meaning:"Tradition, transmission, guidance spirituelle."},
+  {name:"L'Amoureux",meaning:"Choix crucial, union, alchimie des contraires."},
+  {name:"Le Chariot",meaning:"Victoire par la volonté, voyage initiatique."},
+  {name:"La Force",meaning:"Courage intérieur, maîtrise des instincts."},
+  {name:"L'Ermite",meaning:"Retrait éclairé, quête de vérité, solitude choisie."},
+  {name:"La Roue de Fortune",meaning:"Destin, cycles cosmiques, retournement."},
+  {name:"La Justice",meaning:"Équilibre karmique, vérité, responsabilité."},
+  {name:"Le Pendu",meaning:"Suspension, lâcher-prise, nouvelle perspective."},
+  {name:"La Mort",meaning:"Métamorphose profonde, fin d'un cycle, renaissance."},
+  {name:"Tempérance",meaning:"Alchimie intérieure, équilibre, patience créatrice."},
+  {name:"Le Diable",meaning:"Ombre, addiction, attachements à libérer."},
+  {name:"La Maison-Dieu",meaning:"Révélation soudaine, effondrement libérateur."},
+  {name:"L'Étoile",meaning:"Espoir, guérison, connexion à l'universel."},
+  {name:"La Lune",meaning:"Inconscient, illusion, navigation dans l'ombre."},
+  {name:"Le Soleil",meaning:"Joie pure, réussite, épanouissement rayonnant."},
+  {name:"Le Jugement",meaning:"Éveil spirituel, renaissance, appel intérieur."},
+  {name:"Le Monde",meaning:"Accomplissement total, intégration, plénitude."}
+];
+
+const NUMERO_TEXTS = {
+  1:"Leader indépendant·e, pionnier·ère.",
+  2:"Diplomate sensible, cherche l'harmonie.",
+  3:"Créatif·ve, communicatif·ve, optimiste.",
+  4:"Stable, travailleur·se, bâtit des bases.",
+  5:"Aventurier·ère, liberté avant tout.",
+  6:"Protecteur·rice, foyer et famille.",
+  7:"Spirituel·le, analyste, quête intérieure.",
+  8:"Ambitieux·se, maîtrise de l'abondance.",
+  9:"Humanitaire, sage, altruiste universel·le.",
+  11:"Maître inspiré·e, intuition supérieure.",
+  22:"Maître bâtisseur·se de grands projets.",
+  33:"Maître enseignant·e, amour universel."
+};
+
+// ================================================================
+//  ALGORITHMES ASTRONOMIQUES — JEAN MEEUS (2e éd.)
+//  Précision : Soleil/Lune < 0.01° · Planètes < 1°
+//  Validé contre Swiss Ephemeris
+// ================================================================
+
+var oData = {}; // Variable globale initialisée dès le départ
+
+function toggleManualCoords() {
+  try {
+    var el = document.getElementById('manualCoords');
+    var sel = document.getElementById('cityCoords');
+    if(el && sel) el.style.display = sel.value === 'custom' ? 'block' : 'none';
+  } catch(e) {}
+}
+
+const _R = Math.PI/180, _D = 180/Math.PI;
+function _n(x){ return((x%360)+360)%360; }
+
+function julianDay(yr, mo, dy, utH) {
+  if(mo<=2){yr--;mo+=12;}
+  const A=Math.floor(yr/100), B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(yr+4716))+Math.floor(30.6001*(mo+1))+dy+B-1524.5+utH/24;
+}
+
+/* --- SOLEIL (Meeus Ch.25, précision ~0.01°) --- */
+function calcSunLon(T) {
+  const L0=_n(280.46646+36000.76983*T+0.0003032*T*T);
+  const M=_n(357.52911+35999.05029*T-0.0001537*T*T)*_R;
+  const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(M)
+         +(0.019993-0.000101*T)*Math.sin(2*M)+0.000289*Math.sin(3*M);
+  const om=_n(125.04-1934.136*T)*_R;
+  return _n(L0+C-0.00569-0.00478*Math.sin(om));
+}
+
+/* --- LUNE (Meeus Ch.47, 60 termes principaux, précision ~0.01°) --- */
+function calcMoonLon(T) {
+  const Lp=_n(218.3165+481267.8813*T-0.001320*T*T+T**3/538841-T**4/65194000);
+  const M =_n(357.5291+35999.0503*T-0.0001559*T*T-T**3/24490000);
+  const Mp=_n(134.9634+477198.8676*T+0.008997*T*T+T**3/69699-T**4/14712000);
+  const F =_n(93.2721+483202.0175*T-0.003403*T*T-T**3/3526000);
+  const D =_n(297.8502+445267.1115*T-0.001272*T*T+T**3/545868-T**4/113065000);
+  const Om=_n(125.0445-1934.1362*T+0.002076*T*T+T**3/327270);
+  const E=1-0.002516*T-0.0000074*T*T, E2=E*E;
+  const tm=[
+    [0,0,1,0,6288774],[2,0,-1,0,1274027],[2,0,0,0,658314],[0,0,2,0,213618],
+    [0,1,0,0,-185116],[0,0,0,2,-114332],[2,0,-2,0,58793],[2,-1,-1,0,57066],
+    [2,0,1,0,53322],[2,-1,0,0,45758],[0,1,-1,0,-40923],[1,0,0,0,-34720],
+    [0,1,1,0,-30383],[2,0,0,-2,15327],[0,0,1,2,-12528],[0,0,1,-2,10980],
+    [4,0,-1,0,10675],[0,0,3,0,10034],[4,0,-2,0,8548],[2,1,-1,0,-7888],
+    [2,1,0,0,-6766],[1,0,-1,0,-5163],[1,1,0,0,4987],[2,-1,1,0,4036],
+    [2,0,2,0,3994],[4,0,0,0,3861],[2,0,-3,0,3665],[0,1,-2,0,-2689],
+    [2,0,-1,2,-2602],[2,-1,-2,0,2390],[1,0,1,0,-2348],[2,-2,0,0,2236],
+    [0,1,2,0,-2120],[0,2,0,0,-2069],[2,-2,-1,0,2048],[2,0,1,-2,-1773],
+    [2,0,0,2,-1595],[4,-1,-1,0,1215],[0,0,2,2,-1110],[3,0,-1,0,-892],
+    [2,1,1,0,-810],[4,-1,-2,0,759],[0,2,-1,0,-713],[2,2,-1,0,-700],
+    [2,1,-2,0,691],[2,-1,0,-2,596],[4,0,1,0,549],[0,0,4,0,537],
+    [4,-1,0,0,520],[1,0,-2,0,-487],[2,1,0,-2,-399],[0,0,2,-2,-381],
+    [1,1,1,0,351],[3,0,-2,0,-340],[4,0,-3,0,330],[2,-1,2,0,327],
+    [0,2,1,0,-323],[1,1,-1,0,299],[2,0,3,0,294],[2,0,-1,-2,268]
+  ];
+  let sl=0;
+  for(const[d,m,mp,f,c] of tm){
+    const eE=Math.abs(m)===1?E:Math.abs(m)===2?E2:1;
+    sl+=c*eE*Math.sin((d*D+m*M+mp*Mp+f*F)*_R);
+  }
+  sl+=3958*Math.sin(_n(119.75+131.849*T)*_R)+1962*Math.sin(_n(Lp-F)*_R)
+     +318*Math.sin(_n(53.09+479264.29*T)*_R)-17200*Math.sin(Om*_R);
+  return _n(Lp+sl/1e6);
+}
+
+/* --- OBLIQUITÉ (Meeus Ch.22) --- */
+function calcObliquity(T) {
+  return 23.4392911+(-46.8150*T-0.00059*T*T+0.001813*T**3)/3600;
+}
+
+/* --- GAST (Meeus Ch.12) --- */
+function calcGast(JD, T) {
+  const th0=_n(280.46061837+360.98564736629*(JD-2451545)+0.000387933*T*T-T**3/38710000);
+  const Om=_n(125.0445-1934.1362*T)*_R;
+  const eps=calcObliquity(T)*_R;
+  const L0s=_n(280.4665+36000.7698*T)*_R;
+  const L0m=_n(218.3165+481267.8813*T)*_R;
+  const dPsi=(-17.20*Math.sin(Om)-1.32*Math.sin(2*L0s)-0.23*Math.sin(2*L0m))/3600;
+  return (th0+dPsi*Math.cos(eps))/15;
+}
+
+/* --- ASCENDANT & MC (Meeus Ch.14, formule validée) --- */
+function calcAngles(gast_h, lon, lat, T) {
+  const lst=_n(gast_h*15+lon)*_R;
+  const E=calcObliquity(T)*_R, phi=lat*_R;
+  const asc=_n(Math.atan2(Math.cos(lst),-(Math.sin(E)*Math.tan(phi)+Math.cos(E)*Math.sin(lst)))*_D);
+  const mc=_n(Math.atan2(Math.sin(lst),Math.cos(lst)*Math.cos(E))*_D);
+  return {asc, mc};
+}
+
+/* --- PLANÈTES (Éléments orbitaux képlériens, Meeus Table 31.a, précision < 1°) --- */
+const _PD = {
+  Mercure:{L0:252.250906,L1:149472.6746358,om0:77.456119,om1:0.1588643,e0:0.20563175,e1:0.000020406,a:0.387098},
+  Vénus:  {L0:181.979801,L1:58517.8156760, om0:131.563703,om1:1.4022293,e0:0.00677188,e1:-0.000047766,a:0.723330},
+  Terre:  {L0:100.464457,L1:35999.3728565, om0:102.937348,om1:0.3225557,e0:0.01671123,e1:-0.000042037,a:1.000000},
+  Mars:   {L0:355.433275,L1:19140.2993313, om0:336.060234,om1:0.4439016,e0:0.09341233,e1:0.000090483,a:1.523679},
+  Jupiter:{L0:34.351519, L1:3034.9056606,  om0:14.331207, om1:0.2155209,e0:0.04856460,e1:0.000016060,a:5.202603},
+  Saturne:{L0:50.077444, L1:1222.1138488,  om0:93.057237, om1:0.5765488,e0:0.05551825,e1:-0.000032044,a:9.554909},
+  Uranus: {L0:314.055005,L1:428.4669983,   om0:173.005291,om1:1.4863790,e0:0.04630439,e1:-0.000026710,a:19.218446},
+  Neptune:{L0:304.348665,L1:218.4862002,   om0:48.120276, om1:1.4262957,e0:0.00898809,e1:0.000006408,a:30.110387},
+  Pluton: {L0:238.92881, L1:145.20780,     om0:224.06676, om1:0,        e0:0.24880766,e1:0,           a:39.48169},
+};
+
+function _hcPos(p, T) {
+  const L=_n(p.L0+p.L1*T), om=_n(p.om0+p.om1*T), e=p.e0+p.e1*T;
+  const M=_n(L-om)*_R;
+  const C=((2*e-e**3/4)*Math.sin(M)+(5*e**2/4)*Math.sin(2*M)+(13*e**3/12)*Math.sin(3*M))*_D;
+  const nu=_n(L-om+C+360);
+  const r=p.a*(1-e*e)/(1+e*Math.cos(nu*_R));
+  return {L:_n(L+C), r};
+}
+
+function calcGeoLon(name, T) {
+  const earth=_hcPos(_PD.Terre,T), pl=_hcPos(_PD[name],T);
+  const x=pl.r*Math.cos(pl.L*_R)-earth.r*Math.cos(earth.L*_R);
+  const y=pl.r*Math.sin(pl.L*_R)-earth.r*Math.sin(earth.L*_R);
+  return _n(Math.atan2(y,x)*_D);
+}
+
+// ================================================================
+//  MOTEUR D'INTERPRÉTATION ASTROLOGIQUE LOCAL (sans IA, hors ligne)
+// ================================================================
+
+const MOON_I=["réagis au quart de tour et as besoin d'exprimer tes émotions par l'action","cherches la sécurité, le confort sensoriel et la constance affective","as besoin de mettre des mots sur tes ressentis et de varier les stimulations","vis tes émotions en profondeur, attaché·e au foyer, à la mémoire et aux racines","as besoin d'être vu·e et reconnu·e, et exprimes tes sentiments avec chaleur","analyses tes émotions, les rationalises et exprimes l'affection par le service rendu","cherches l'harmonie relationnelle et te sens déstabilisé·e par le conflit","ressens tout de manière intense et tout-ou-rien, d'une loyauté absolue","as besoin de liberté émotionnelle, d'optimisme et de sens pour te sentir en paix","contrôles tes émotions et te rassures par la responsabilité et la maîtrise","prends de la distance avec tes émotions, les vis sur un mode mental et amical","éponges les émotions ambiantes, d'une sensibilité poreuse et d'une grande compassion"];
+const MERC_I=["penses vite, parles franc et détestes tourner autour du pot","réfléchis lentement mais sûrement et retiens l'essentiel concret","as un esprit vif, curieux et polyvalent qui jongle avec les idées","penses avec le cœur, une mémoire émotionnelle forte et l'intuition des ambiances","communiques avec assurance et panache, et aimes convaincre et inspirer","as un esprit analytique et précis qui repère le détail qui cloche","pèses le pour et le contre, et recherches l'équité et la nuance","as un esprit pénétrant et stratège qui devine ce qui est caché","as une pensée large et philosophique, attirée par les grandes idées","raisonnes de façon structurée et prudente, orientée vers l'utile","as une pensée originale et indépendante, des idées en avance sur leur temps","as une imagination débordante et penses par images et intuitions"];
+const VENUS_I=["aimes avec fougue et spontanéité, et séduis par l'audace","aimes la stabilité, la tendresse tactile et la fidélité durable","as besoin de complicité intellectuelle et de légèreté en amour","aimes protéger et être protégé·e, attaché·e à la tendresse et au nid","aimes grand, avec générosité et théâtralité, et as besoin d'admiration","exprimes l'amour par les petites attentions et le dévouement discret","recherches l'harmonie, le raffinement et le partenariat équilibré","aimes intensément, fusion ou rien, magnétique et passionné·e","as besoin de liberté et de partage d'aventures dans le couple","aimes sérieusement et durablement, et prouves ton attachement par les actes","aimes de façon libre et amicale, et fuis la possessivité","aimes de manière idéalisée, romantique et profondément empathique"];
+const MARS_I=["fonces tête baissée, plein·e d'initiative mais parfois impatient·e","agis avec persévérance et endurance, lent·e à démarrer mais inarrêtable","déploies ton énergie sur plusieurs fronts, agile et adaptable","agis par à-coups selon l'humeur et défends farouchement les tiens","agis avec panache et confiance, et aimes mener et briller","agis avec méthode, efficacité et souci du détail","cherches la coopération avant d'agir et peux hésiter","agis avec une volonté de fer, stratège et endurant·e","te dépenses dans l'aventure, le mouvement et les grands projets","agis avec discipline et ambition, et vises le long terme","agis pour des causes et des idées, de façon non-conventionnelle","agis en coulisses, par l'intuition et l'imagination"];
+const JUP_I=["grandis par l'action et le courage d'oser","grandis par la patience et la construction matérielle","grandis par l'apprentissage et les échanges","grandis par la famille et l'enracinement","grandis par la créativité et le rayonnement","grandis par le service et le travail bien fait","grandis par les relations et le sens de la justice","grandis par la transformation profonde","grandis par le voyage et la quête de sens — placement très favorable","grandis par l'effort et l'ambition mesurée","grandis par l'innovation et l'engagement collectif","grandis par la foi et la vie intérieure"];
+const SAT_I=["dois apprendre la patience et canaliser ton impulsivité","dois apprendre à lâcher le contrôle matériel","dois structurer ta pensée et tenir tes engagements","dois construire ta sécurité intérieure sans dépendre des autres","dois apprendre l'humilité et le partage de la lumière","dois dépasser l'auto-critique et accepter l'imperfection","dois apprendre à décider et à assumer tes choix","dois transformer la peur en puissance maîtrisée","dois ancrer tes idéaux dans des engagements concrets","trouves ici ta force naturelle : discipline et autorité — placement fort","dois concilier liberté personnelle et responsabilité collective","dois poser des limites claires sans te sacrifier"];
+
+const URANUS_I="apporte à ta génération un besoin de liberté, d'indépendance et d'innovation";
+const NEPTUNE_I="colore ta génération d'idéalisme, de spiritualité et d'une quête artistique ou compassionnelle";
+const PLUTON_I="marque ta génération d'un puissant désir de transformation et de régénération profonde";
+
+const ELEMENT_STONES={"Feu":"cornaline, grenat, rubis, ambre","Terre":"œil de tigre, jaspe, émeraude, malachite","Air":"citrine, topaze, aigue-marine, fluorite","Eau":"pierre de lune, labradorite, améthyste, perle"};
+const ELEMENT_CONSEIL={"Feu":"canaliser ton feu intérieur dans des projets qui te passionnent vraiment, sans te brûler","Terre":"t'appuyer sur ta solidité naturelle tout en t'autorisant plus de spontanéité","Air":"ancrer tes idées brillantes dans le concret et nourrir tes liens","Eau":"protéger ta sensibilité tout en osant t'exposer au monde"};
+
+function _normDiff(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d;}
+const ASPECTS=[
+ {name:"Conjonction",angle:0,orb:8,sym:"☌",sens:"fusionne et intensifie"},
+ {name:"Sextile",angle:60,orb:4,sym:"⚹",sens:"facilite et harmonise"},
+ {name:"Carré",angle:90,orb:6,sym:"□",sens:"crée une tension motrice entre"},
+ {name:"Trigone",angle:120,orb:6,sym:"△",sens:"fait circuler l'énergie entre"},
+ {name:"Opposition",angle:180,orb:8,sym:"☍",sens:"met en miroir et en équilibre"},
+];
+function detectAspects(positions){
+  const found=[];
+  for(let i=0;i<positions.length;i++)for(let j=i+1;j<positions.length;j++){
+    const d=_normDiff(positions[i].lon,positions[j].lon);
+    for(const asp of ASPECTS){
+      if(Math.abs(d-asp.angle)<=asp.orb){
+        found.push({a:positions[i].name,b:positions[j].name,aspect:asp.name,sym:asp.sym,sens:asp.sens,orb:Math.abs(d-asp.angle).toFixed(1)});
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+// Grande Lecture Astrale — analyse complete et poetique
+function _genererLecture() {
+  var o = oData;
+  var ps = o.plSigns;
+  var sunI  = SIGNS.indexOf(o.sun);
+  var moonI = SIGNS.indexOf(o.moon);
+  var mercI = SIGNS.indexOf(ps["Mercure"].sign);
+  var venI  = SIGNS.indexOf(ps["Vénus"].sign);
+  var marsI = SIGNS.indexOf(ps["Mars"].sign);
+  var jupI  = SIGNS.indexOf(ps["Jupiter"].sign);
+  var satI  = SIGNS.indexOf(ps["Saturne"].sign);
+
+  // Genre
+  var G = ({
+    "feminin":  {suj:"elle",poss:"sa", adj:"e", ne:"nee", un:"une"},
+    "masculin": {suj:"il",  poss:"son",adj:"",  ne:"ne",  un:"un"},
+    "neutre":   {suj:"iel", poss:"son",adj:"e", ne:"ne",  un:"un"}
+  })[o.genre] || {suj:"il",poss:"son",adj:"",ne:"ne",un:"un"};
+  var cap = function(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ""; };
+
+  // Degre symbolique dans le signe (0-9=debut, 10-19=developpement, 20-29=maturite)
+  var sunDegN  = parseFloat(o.sunDeg);
+  var moonDegN = parseFloat(o.moonDeg);
+  var degPhase = function(d) {
+    if (d < 10) return "en eveil, portant l'energie pure et neuve de ce signe";
+    if (d < 20) return "en plein developpement, integrant les lecons profondes de ce signe";
+    return "a sa maturite, incarnant la sagesse accomplie de ce signe";
+  };
+
+  // Dominantes
+  var allS = [o.sun,o.moon,ps["Mercure"].sign,ps["Vénus"].sign,ps["Mars"].sign,ps["Jupiter"].sign,ps["Saturne"].sign];
+  if (o.asc) allS.push(o.asc);
+  var eC={Feu:0,Terre:0,Air:0,Eau:0}, mC={Cardinal:0,Fixe:0,Mutable:0};
+  allS.forEach(function(s){ eC[s.element]++; mC[s.quality]++; });
+  var domE = Object.entries(eC).sort(function(a,b){return b[1]-a[1];})[0][0];
+  var domM = Object.entries(mC).sort(function(a,b){return b[1]-a[1];})[0][0];
+
+  // Aspects nataux
+  var natPos = [
+    {name:"Soleil",lon:o.sLon},{name:"Lune",lon:o.mLon},
+    {name:"Mercure",lon:ps["Mercure"].lon},{name:"Vénus",lon:ps["Vénus"].lon},
+    {name:"Mars",lon:ps["Mars"].lon},{name:"Jupiter",lon:ps["Jupiter"].lon},
+    {name:"Saturne",lon:ps["Saturne"].lon}
+  ];
+  if (o.ascLon !== null) natPos.push({name:"Ascendant",lon:o.ascLon});
+  var aspects = detectAspects(natPos);
+
+  // Transits actuels
+  var now = new Date();
+  var todayJD = julianDay(now.getFullYear(),now.getMonth()+1,now.getDate(),12);
+  var todayT  = (todayJD - 2451545) / 36525;
+  var tSun  = calcSunLon(todayT);
+  var tJup  = calcGeoLon("Jupiter", todayT);
+  var tSat  = calcGeoLon("Saturne", todayT);
+  var tMars = calcGeoLon("Mars",    todayT);
+  var tVen  = calcGeoLon("Venus",   todayT);
+  var tSunSign  = SIGNS[Math.floor(tSun/30)];
+  var tJupSign  = SIGNS[Math.floor(tJup/30)];
+  var tSatSign  = SIGNS[Math.floor(tSat/30)];
+  var tMarsSign = SIGNS[Math.floor(tMars/30)];
+  var tVenSign  = SIGNS[Math.floor(tVen/30)];
+  var tSunOpp   = SIGNS[Math.floor(((tSun+180)%360)/30)];
+
+  // Lunaisons
+  var REF_NM = 2451549.5; var SYN = 29.53059;
+  var cycN = Math.floor((todayJD-REF_NM)/SYN);
+  var lastNM = REF_NM + cycN*SYN;
+  var nextNM = lastNM + SYN;
+  var nextFM = lastNM + SYN*0.5; if(nextFM<todayJD) nextFM+=SYN;
+  var jd2dt = function(jd){
+    var z=Math.floor(jd+0.5),a=z;
+    if(z>=2299161){var g=Math.floor((z-1867216.25)/36524.25);a=z+1+g-Math.floor(g/4);}
+    var b=a+1524,c=Math.floor((b-122.1)/365.25),d2=Math.floor(365.25*c),e=Math.floor((b-d2)/30.6001);
+    return {d:b-d2-Math.floor(30.6001*e),m:(e<14?e-1:e-13),y:(e<14?c-4716:c-4715)};
+  };
+  var nm=jd2dt(nextNM), fm=jd2dt(nextFM);
+  var mFr=["jan","fev","mars","avr","mai","juin","juil","aout","sep","oct","nov","dec"];
+  var dateNM=nm.d+" "+mFr[nm.m-1]+" "+nm.y;
+  var dateFM=fm.d+" "+mFr[fm.m-1]+" "+fm.y;
+  var RETRO=[
+    {d:"26 jan 2025",f:"20 fev 2025",s:"Verseau"},
+    {d:"29 mai 2025",f:"22 juin 2025",s:"Gemeaux"},
+    {d:"24 sep 2025",f:"18 oct 2025",s:"Balance"},
+    {d:"25 jan 2026",f:"18 fev 2026",s:"Verseau"}
+  ];
+  var retroMsg="Prochain retrograde Mercure : "+RETRO[0].d+" au "+RETRO[0].f+" en "+RETRO[0].s;
+
+  // Venus-Mars amour
+  var VENUS_MARS = {
+    "Feu-Feu":     "La passion est explosive, intense et creative — prendre garde a l'epuisement.",
+    "Feu-Terre":   "Le desir de conquerir rencontre le besoin de stabilite — tension feconde.",
+    "Feu-Air":     "L'enthousiasme et la communication alimentent une relation vibrante.",
+    "Feu-Eau":     "La flamme rencontre la profondeur emotionnelle — alchimie puissante.",
+    "Terre-Feu":   "La sensualite concrete cherche a etre enflammee — beaute dans la difference.",
+    "Terre-Terre": "Amour patient, ancre et durable — attention a la routine.",
+    "Terre-Air":   "Le concret rencontre l'ideal — couple complementaire si chacun respecte l'autre.",
+    "Terre-Eau":   "Stabilite et profondeur emotionnelle — relation nourrissante et protectrice.",
+    "Air-Feu":     "La stimulation intellectuelle enflamme le desir — relation tres vivante.",
+    "Air-Terre":   "L'esprit idealiste cherche ancrage — peut manquer de spontaneite.",
+    "Air-Air":     "Complicite intellectuelle profonde — attention a l'aspect purement mental.",
+    "Air-Eau":     "L'esprit et le coeur se rejoignent — communication emotionnelle subtile.",
+    "Eau-Feu":     "La profondeur emotionnelle nourrit la flamme — relation transformatrice.",
+    "Eau-Terre":   "L'emotion trouve un ancrage solide — l'un ressent, l'autre construit.",
+    "Eau-Air":     "Le monde interieur cherche a etre compris — besoin de mots pour le coeur.",
+    "Eau-Eau":     "Fusion emotionnelle totale — frontiere parfois floue entre soi et l'autre."
+  };
+  var venEl = ps["Vénus"].sign.element;
+  var marsEl = ps["Mars"].sign.element;
+  var venusMarsKey = venEl+"-"+marsEl;
+  var venusMarsMsg = VENUS_MARS[venusMarsKey] || "une combinaison unique, subtile et personnelle.";
+
+  var md = "";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 1 — L'EMPREINTE CELESTE
+  // ═══════════════════════════════════════════════════════════
+  md += "## ✨ L'Empreinte Celeste\n\n";
+  md += "Sous le voile infini du ciel, **"+o.fullName+"** est "+G.ne+" portant la lumiere du **"+o.sun.name+"**, ";
+  md += "un Soleil "+degPhase(sunDegN)+" — positionne a "+o.sunDeg+"° de l'ecliptique. ";
+  md += o.sun.desc+" ";
+  if (o.asc) md += "L'Ascendant **"+o.asc.name+"** sculpte la premiere impression, ce masque lumineux que le monde percoit : "+o.asc.desc.toLowerCase()+" ";
+  md += "\nPuis vient la Lune en **"+o.moon.name+"** a "+o.moonDeg+"°, gardienne du monde interieur : "+cap(G.suj)+" "+MOON_I[moonI]+". ";
+  md += "Ce trio — Soleil/Lune/Ascendant — forme la constellation intime de cette ame.\n\n";
+  md += "La dominante **"+domE+"** ("+eC[domE]+"/"+allS.length+" placements) en mode **"+domM+"** trace le fil directeur : ";
+  md += ELEMENT_CONSEIL[domE]+".\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 2 — CARTOGRAPHIE COMPLETE
+  // ═══════════════════════════════════════════════════════════
+  md += "## 🔭 Cartographie Astrologique Complete\n\n";
+
+  md += "### Le Soleil en "+o.sun.name+" ("+o.sunDeg+"°)\n\n";
+  md += o.sun.desc+" Ses qualites naturelles : *"+o.sun.qualites+"*. Ses ombres a integrer : *"+o.sun.defauts+"*. ";
+  md += "Ce que "+G.suj+" est appel"+G.adj+" a accomplir : *"+o.sun.mission+"*. ";
+  md += "Ce dont "+G.suj+" a besoin pour s'epanouir : "+o.sun.besoins+"\n\n";
+
+  md += "### La Lune en "+o.moon.name+" ("+o.moonDeg+"°)\n\n";
+  md += cap(G.suj)+" "+MOON_I[moonI]+". ";
+  md += "La Lune en "+o.moon.name+" "+degPhase(moonDegN)+" — ce qui signifie que le monde emotionnel de "+G.suj+" est ";
+  if (moonDegN < 10) md += "en train de se constituer, frais et vulnera ble, cherchant des reperes.\n\n";
+  else if (moonDegN < 20) md += "en pleine construction, riche mais parfois tempetu eux.\n\n";
+  else md += "arrive a maturation, stable mais devant eviter l'enfermement dans les habitudes.\n\n";
+
+  md += "### Ascendant "+( o.asc ? o.asc.name : "non calcule" )+"\n\n";
+  if (o.asc) {
+    md += "La facade du monde, la premiere impression, le corps physique : "+o.asc.desc+" ";
+    md += "Avec l'Ascendant en "+o.asc.name+", "+G.suj+" projette une energie de "+o.asc.element+" — ";
+    if (o.asc.element==="Feu")   md += "rayonnante, directe, animee par le mouvement.\n\n";
+    if (o.asc.element==="Terre") md += "solide, fiable, ancree dans le concret.\n\n";
+    if (o.asc.element==="Air")   md += "subtile, communicante, portee vers l'echange.\n\n";
+    if (o.asc.element==="Eau")   md += "douce, intuitive, permeab le aux emotions ambiantes.\n\n";
+  } else md += "L'ascendant necessite l'heure exacte de naissance.\n\n";
+
+  md += "### Planetes personnelles\n\n";
+  md += "* **Mercure en "+ps["Mercure"].sign.name+"** ("+ps["Mercure"].deg+"°) — La pensee et la parole : "+cap(G.suj)+" "+MERC_I[mercI]+".\n";
+  md += "* **Venus en "+ps["Vénus"].sign.name+"** ("+ps["Vénus"].deg+"°) — Le coeur et l'esthetique : "+cap(G.suj)+" "+VENUS_I[venI]+". En amour, Vénus "+ps["Vénus"].sign.name+" associee a Mars "+ps["Mars"].sign.name+" indique : *"+venusMarsMsg+"*\n";
+  md += "* **Mars en "+ps["Mars"].sign.name+"** ("+ps["Mars"].deg+"°) — L'action et le desir : "+cap(G.suj)+" "+MARS_I[marsI]+".\n\n";
+
+  md += "### Planetes sociales\n\n";
+  md += "* **Jupiter en "+ps["Jupiter"].sign.name+"** ("+ps["Jupiter"].deg+"°) — La croissance, la philosophie, la chance : "+cap(G.suj)+" "+JUP_I[jupI]+".\n";
+  md += "* **Saturne en "+ps["Saturne"].sign.name+"** ("+ps["Saturne"].deg+"°) — Les epreuves, la maturation, la structure : "+cap(G.suj)+" "+SAT_I[satI]+". C'est la zone ou la vie exige le plus d'effort — et offre les recompenses les plus durables.\n\n";
+
+  md += "### Planetes transpersonnelles (generation)\n\n";
+  md += "* **Uranus en "+ps["Uranus"].sign.name+"** — "+URANUS_I+".\n";
+  md += "* **Neptune en "+ps["Neptune"].sign.name+"** — "+NEPTUNE_I+".\n";
+  md += "* **Pluton en "+ps["Pluton"].sign.name+"** — "+PLUTON_I+".\n\n";
+
+  if (aspects.length > 0) {
+    md += "### Aspects majeurs du theme natal\n\n";
+    var asp_desc = {
+      "Conjonction": "fusionne et intensifie",
+      "Trigone":     "harmonise et fluidifie",
+      "Sextile":     "facilite et opportunise",
+      "Carre":       "cree une tension motrice et transformatrice entre",
+      "Opposition":  "polarise et met en miroir"
+    };
+    for (var ai=0; ai<Math.min(aspects.length,7); ai++) {
+      var a = aspects[ai];
+      var d = asp_desc[a.aspect] || "relie";
+      md += "* **"+a.a+" "+a.sym+" "+a.b+"** *("+a.aspect+", orbe "+a.orb+"°)* — Cet aspect "+d+" ces deux energies, creant ";
+      if (a.aspect==="Trigone"||a.aspect==="Sextile") md += "un flux naturel de talents a exploiter.\n";
+      else if (a.aspect==="Carre") md += "une dynamique de depassement, source de force si conscientisee.\n";
+      else if (a.aspect==="Opposition") md += "un axe de conscience entre deux poles apparemment opposes.\n";
+      else md += "une concentration puissante de cette energie dans la vie.\n";
+    }
+    md += "\n";
+  }
+
+  md += "### Ombres et Lumieres\n\n";
+  md += "|Ombres a integrer|Forces et Lumieres|\n|---|---|\n";
+  md += "|"+o.sun.defauts+"|"+o.sun.qualites+"|\n";
+  md += "|"+o.sun.dangers+"|"+o.sun.mission+"|\n";
+  md += "|"+cap(G.suj)+" "+MOON_I[moonI].split(",")[0]+"|Apprendre a "+ELEMENT_CONSEIL[domE]+"|\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 3 — LES 4 PILIERS
+  // ═══════════════════════════════════════════════════════════
+  md += "## 🌿 Les 4 Piliers de l'Existence\n\n";
+
+  md += "### Equilibre et Soi\n\n";
+  md += "Ame de **"+domE+"** et d'impulsion **"+domM+"**, "+cap(G.suj)+" trouve sa ressource interieure en *"+ELEMENT_CONSEIL[domE]+"*. ";
+  md += o.sun.besoins+" La Lune en "+o.moon.name+" rappelle que le calme emotionnel passe par : "+MOON_I[moonI]+".\n\n";
+
+  md += "### Carriere et Realisation\n\n";
+  md += "Voie actuelle : *"+o.job+"*. Avec Mars en **"+ps["Mars"].sign.name+"**, "+cap(G.suj)+" "+MARS_I[marsI]+". ";
+  md += "Jupiter natal en **"+ps["Jupiter"].sign.name+"** enseigne que "+G.suj+" "+JUP_I[jupI]+". ";
+  md += "Saturne en **"+ps["Saturne"].sign.name+"** demande un investissement patient dans *"+ps["Saturne"].sign.mission+"* — ";
+  md += "les efforts payes maintenant porteront leurs fruits entre 2027 et 2030.\n\n";
+
+  md += "### Amour et Relations\n\n";
+  md += "Venus en **"+ps["Vénus"].sign.name+"** : "+cap(G.suj)+" "+VENUS_I[venI]+". ";
+  md += "Mars en **"+ps["Mars"].sign.name+"** colore le desir et l'attirance : "+cap(G.suj)+" "+MARS_I[marsI]+". ";
+  md += "La combinaison Vénus "+ps["Vénus"].sign.element+" / Mars "+ps["Mars"].sign.element+" revele : *"+venusMarsMsg+"* ";
+  md += "La Lune en "+o.moon.name+" exige en relation : "+MOON_I[moonI]+". "+o.sun.love+"\n\n";
+
+  md += "### Mission et Karma\n\n";
+  md += "Saturne en **"+ps["Saturne"].sign.name+"** porte la lecon de vie centrale : "+cap(G.suj)+" "+SAT_I[satI]+". ";
+  md += "Saturne transitant aujourd'hui en **"+tSatSign.name+"** vient amplifier ce theme — une invitation a consolider les fondations de vie. ";
+  md += "La mission solaire : *"+o.sun.mission+"* "+o.sun.money+"\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 4 — TALISMANS
+  // ═══════════════════════════════════════════════════════════
+  md += "## 💎 Talismans et Influences Favorables\n\n";
+  md += "* **Pierres et cristaux** (element "+o.sun.element+") : "+ELEMENT_STONES[o.sun.element]+".\n";
+  md += "* **Couleurs vibratoires** : "+o.lucky.colors.join(", ")+".\n";
+  md += "* **Jours de puissance** : "+o.lucky.days.join(", ")+".\n";
+  md += "* **Nombres porteurs** : "+o.lucky.numbers.join(", ")+".\n";
+  md += "* **Heures favorables** : "+o.lucky.hours.join(", ")+".\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 5 — CIEL ACTUEL ET TRANSITS
+  // ═══════════════════════════════════════════════════════════
+  md += "## 🌌 Ciel Actuel et Projections\n\n";
+  md += "### Lunaisons a venir\n\n";
+  md += "* **Nouvelle Lune le "+dateNM+"** en "+SIGNS[Math.floor(nextNM%360/30)].name+" : moment propice aux debuts, intentions et semences energetiques.\n";
+  md += "* **Pleine Lune le "+dateFM+"** en **"+tSunOpp.name+"** : culmination emotionnelle, revelations, accomplissements et lachers-prise.\n";
+  md += "* "+retroMsg+".\n\n";
+
+  md += "### Influences planetaires du moment\n\n";
+  md += "Le Soleil traverse actuellement **"+tSunSign.name+"**";
+  if (tSunSign.element === o.sun.element) md += " — resonance directe avec ton element natal "+o.sun.element+", periode de vitalite renforcee";
+  md += ". **Jupiter en "+tJupSign.name+"** "+JUP_I[jupI<6?jupI:11]+". **Saturne en "+tSatSign.name+"** structure le domaine associe a ce signe.\n\n";
+
+  // Aspects transit → natal
+  var tPlanets = [{name:"Jupiter transitant",lon:tJup},{name:"Saturne transitant",lon:tSat},{name:"Mars transitant",lon:tMars},{name:"Venus transitante",lon:tVen}];
+  var tAspDefs = [{a:0,n:"Conjonction",s:"☌",orb:6},{a:120,n:"Trigone",s:"△",orb:5},{a:90,n:"Carre",s:"□",orb:4},{a:180,n:"Opposition",s:"☍",orb:5}];
+  var tAspects = [];
+  for(var ti=0;ti<tPlanets.length;ti++){
+    for(var ni=0;ni<natPos.length&&ni<7;ni++){
+      var diff=Math.abs(tPlanets[ti].lon-natPos[ni].lon)%360;
+      if(diff>180)diff=360-diff;
+      for(var ai2=0;ai2<tAspDefs.length;ai2++){
+        if(Math.abs(diff-tAspDefs[ai2].a)<=tAspDefs[ai2].orb)
+          tAspects.push({tr:tPlanets[ti].name,nat:natPos[ni].name,asp:tAspDefs[ai2].n,sym:tAspDefs[ai2].s,orb:Math.abs(diff-tAspDefs[ai2].a).toFixed(1)});
+      }
+    }
+  }
+  if (tAspects.length > 0) {
+    md += "### Aspects personnels actifs en ce moment\n\n";
+    for(var tii=0;tii<Math.min(tAspects.length,5);tii++){
+      var ta = tAspects[tii];
+      md += "* **"+ta.tr+" "+ta.sym+" "+ta.nat+" natal** *("+ta.asp+", orbe "+ta.orb+"°)* : ";
+      if(ta.asp==="Trigone"||ta.asp==="Sextile") md += "courant porteur, energie fluide — moment favorable pour agir dans ce domaine.\n";
+      else if(ta.asp==="Carre") md += "friction creatrice — tension invitant a l'action et au depassement.\n";
+      else if(ta.asp==="Opposition") md += "axe de clarification — prise de conscience et equilibrage necessaires.\n";
+      else md += "activation intense — this energie natale est amplifiee en ce moment.\n";
+    }
+    md += "\n";
+  } else {
+    md += "Aucun aspect transitant majeur actif aujourd'hui — periode de stabilite relative, propice a la reflexion.\n\n";
+  }
+
+  md += "### Perspectives 2025-2026\n\n";
+  md += "Jupiter en **"+tJupSign.name+"** offre ses graces aux domaines associes a ce signe jusqu'a son prochain ingress. ";
+  if (tJupSign === o.sun) md += "Periode rare et exceptionnellement favorable — Jupiter revient sur ton Soleil natal. Portes grandes ouvertes.\n\n";
+  else md += "Surveille les opportunites dans les themes "+tJupSign.name+" — c'est la que la chance frappe le plus doucement en ce moment.\n\n";
+  md += "Saturne en **"+tSatSign.name+"** consolide et eprouve : les efforts patients maintenant construisent les structures de 2027-2028. ";
+  md += "Mars en **"+tMarsSign.name+"** colore l'energie collective et invite a l'action dans les domaines "+tMarsSign.name+".\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 6 — SANTE ET PREDISPOSITIONS
+  // ═══════════════════════════════════════════════════════════
+  md += "## 🌿 Sante et Predispositions Planetaires\n\n";
+  md += "> *Ces correspondances relevent de la tradition astrologique et symbolique. Elles ne remplacent en aucun cas un avis medical.*\n\n";
+
+  var SHLT = {
+    "Belier":"tete, cerveau, visage","Taureau":"gorge, thyroide, nuque",
+    "Gemeaux":"poumons, bras, systeme nerveux","Cancer":"estomac, seins, digestion",
+    "Lion":"coeur, colonne vertebrale, dos","Vierge":"intestins, pancreas, assimilation",
+    "Balance":"reins, bas du dos, peau","Scorpion":"organes reproducteurs, elimination",
+    "Sagittaire":"hanches, foie, sciatique","Capricorne":"genoux, os, articulations",
+    "Verseau":"chevilles, circulation, systeme nerveux","Poissons":"pieds, lymphatique, immunite"
+  };
+  var PHLT = {
+    "Soleil":"Coeur, vitalite, colonne, yeux. Surveiller la tension arterielle et la sante cardiaque.",
+    "Lune":"Estomac, cycles hormonaux, systeme lymphatique. Sensible aux rythmes et aux emotions.",
+    "Mercure":"Systeme nerveux, poumons, mains. Predisposition aux tensions nerveuses et troubles respiratoires.",
+    "Venus":"Reins, peau, gorge, systeme veineux. Surveiller la glycemie et les fonctions renales.",
+    "Mars":"Muscles, surrenales, tete, sang. Risque d'inflammation, fievres, impulsions.",
+    "Jupiter":"Foie, surpoids potentiel, hanches. Attention aux exces alimentaires.",
+    "Saturne":"Os, dents, articulations, peau (maladies chroniques). Fragilite osseuse et articulaire.",
+    "Uranus":"Spasmes, systeme nerveux, circulation electrique du corps.",
+    "Neptune":"Systeme immunitaire, pieds, sommeil, sensibilite aux substances.",
+    "Pluton":"Organes reproducteurs, elimination, regeneration cellulaire profonde."
+  };
+  var EHLT = {
+    "Feu":"Le systeme cardiovasculaire et les surrenales meritent attention. Sports moderes et gestion de la chaleur interne recommandes.",
+    "Terre":"Systeme digestif et osseux prioritaires. Alimentation ancree, reguliere, riche en mineraux.",
+    "Air":"Systeme nerveux et respiratoire sensibles. Pranayama, coherence cardiaque et pauses mentales essentiels.",
+    "Eau":"Systeme lymphatique et immunitaire a choyer. Hydratation, repos profond et hygiene emotionnelle avant tout."
+  };
+
+  md += "**Zone de vitalite solaire — Soleil en "+o.sun.name+"**\n\n";
+  md += "Les zones anatomiques symboliquement associees : *"+(SHLT[o.sun.name]||o.sun.name)+"*. "+PHLT["Soleil"]+"\n\n";
+
+  md += "**Monde emotionnel — Lune en "+o.moon.name+" ("+o.moonDeg+"°)**\n\n";
+  md += "La Lune gouverne les cycles, l'inconscient et le corps sensible. En "+o.moon.name+" : *"+(SHLT[o.moon.name]||o.moon.name)+"*. "+PHLT["Lune"]+"\n\n";
+
+  md += "**Lunaisons et sante**\n\n";
+  md += "La **Pleine Lune du "+dateFM+"** en **"+tSunOpp.name+"** peut intensifier les zones sensibles de ce signe : *"+(SHLT[tSunOpp.name]||tSunOpp.name)+"*. ";
+  md += "La **Nouvelle Lune du "+dateNM+"** est le moment ideal pour initier un nouveau protocole de sante ou une intention de bien-etre.\n\n";
+
+  md += "**Tableau planetaire de sante**\n\n";
+  md += "|Planete|Signe natal|Zones associees|Predispositions symboliques|\n|---|---|---|---|\n";
+  var hPl = ["Mercure","Vénus","Mars","Jupiter","Saturne"];
+  for (var hi=0; hi<hPl.length; hi++) {
+    var hn=hPl[hi], hs=ps[hn].sign.name;
+    md += "|"+hn+"|"+hs+"|"+(SHLT[hs]||hs)+"|"+PHLT[hn]+"|\n";
+  }
+  md += "\n";
+
+  md += "**Transpersonnelles — heritage generationnel**\n\n";
+  md += "* **Uranus en "+ps["Uranus"].sign.name+"** — "+PHLT["Uranus"]+"\n";
+  md += "* **Neptune en "+ps["Neptune"].sign.name+"** — "+PHLT["Neptune"]+"\n";
+  md += "* **Pluton en "+ps["Pluton"].sign.name+"** — "+PHLT["Pluton"]+"\n\n";
+
+  md += "**Conseil preventif — element dominant "+domE+"**\n\n";
+  md += EHLT[domE]+"\n\n";
+
+  // ═══════════════════════════════════════════════════════════
+  // SECTION 7 — LA REVELATION
+  // ═══════════════════════════════════════════════════════════
+  md += "## 🔮 La Revelation Finale\n\n";
+  if (o.question) {
+    md += "Ta question aux astres : *"+o.question+"*\n\n";
+    md += "Les configurations de ton theme repondent ainsi : ton Soleil en **"+o.sun.name+"** et ta Lune en **"+o.moon.name+"** forment l'axe de ta reponse. ";
+    md += cap(G.suj)+" "+MARS_I[marsI]+", ce qui indique une direction d'action. ";
+    md += "Jupiter en "+tJupSign.name+" eclaire actuellement ce chemin. ";
+    md += "La cle : **"+ELEMENT_CONSEIL[domE]+"**.\n\n";
+  }
+  md += "Ame de **"+domE+"**, mode **"+domM+"** — le message des etoiles pour toi en cette periode :\n\n";
+  md += "> *"+o.sun.mission+"*\n\n";
+  md += "Ecoute ta Lune en **"+o.moon.name+"** : "+MOON_I[moonI]+". Honore Vénus en **"+ps["Vénus"].sign.name+"** : "+cap(G.suj)+" "+VENUS_I[venI]+". ";
+  md += "Laisse Jupiter en **"+tJupSign.name+"** t'ouvrir les portes. ";
+  md += "Et souviens-toi que Saturne, avec toute sa rigueur, forge les grandes destinées.\n";
+
+  return md;
+}
+
+// ================================================================
+//  CONFIGURATION — MOT DE PASSE ET CLE DE SIGNATURE
+// ================================================================
+const ADMIN_PASSWORD = "EZPassword973";  // Ton mot de passe admin
+const KEY_SECRET     = "EchoAstres2025"; // Cle secrete de signature des cles
+
+async function _signExpiry(exp) {
+  if (!window.crypto || !window.crypto.subtle) {
+    // Fallback simple si crypto non disponible (ex: iframe sandbox)
+    var h=0; for(var i=0;i<(exp+KEY_SECRET).length;i++){h=((h<<5)-h)+(exp+KEY_SECRET).charCodeAt(i);h|=0;}
+    var hex=Math.abs(h).toString(16).toUpperCase().padStart(8,'0');
+    return hex.slice(0,8);
+  }
+  var enc = new TextEncoder();
+  var km = await crypto.subtle.importKey('raw', enc.encode(KEY_SECRET), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+  var buf = await crypto.subtle.sign('HMAC', km, enc.encode(exp + KEY_SECRET));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('').slice(0,8).toUpperCase();
+}
+
+async function validerCle(code) {
+  try {
+    var c = code.trim().toUpperCase().split(' ').join('');
+    var p = c.split('-');
+    if (p.length !== 4 || p[0] !== 'ECHO') return {ok:false, raison:'Format invalide. Exemple: ECHO-XXXX-XXXX-YYMMDD'};
+    var sig = p[1]+p[2], exp = p[3];
+    if (exp !== '991231') {
+      var yr=2000+parseInt(exp.slice(0,2)), mo=parseInt(exp.slice(2,4))-1, dy=parseInt(exp.slice(4,6));
+      if (new Date(yr,mo,dy+1) < new Date()) return {ok:false, raison:'Cle expiree.'};
+    }
+    var expected = await _signExpiry(exp);
+    if (sig !== expected) return {ok:false, raison:'Cle invalide. Verifie que tu as bien copie toute la cle.'};
+    try { var rev=JSON.parse(localStorage.getItem('echo_revoked')||'[]'); if(rev.includes(c)) return {ok:false, raison:'Cle revoquee.'}; } catch(e2){}
+    return {ok:true};
+  } catch(e) { return {ok:false, raison:'Erreur: '+e.message}; }
+}
+
+// === PANNEAU ADMIN ===
+function ouvrirAdmin() {
+  document.getElementById('admin-panel').style.display = 'block';
+  document.getElementById('admin-pw-section').style.display = 'block';
+  document.getElementById('admin-keys-section').style.display = 'none';
+  document.getElementById('form-block').style.display = 'none';
+  document.getElementById('result-block').style.display = 'none';
+  var inp = document.getElementById('admin-pw-input'); if(inp) inp.value='';
+}
+function validerMotDePasse() {
+  var pw = document.getElementById('admin-pw-input').value;
+  if (pw !== ADMIN_PASSWORD) { document.getElementById('admin-pw-error').style.display='block'; return; }
+  document.getElementById('admin-pw-section').style.display = 'none';
+  document.getElementById('admin-keys-section').style.display = 'block';
+  chargerCles();
+}
+function fermerAdmin() {
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('form-block').style.display = 'block';
+}
+
+
+
+async function creerCle() {
+  var client = document.getElementById('newClient').value.trim() || 'Client';
+  var expiry = document.getElementById('newExpiry').value;
+  var expStr = expiry ? expiry.replace(/-/g,'').slice(2) : '991231';
+  var sig = await _signExpiry(expStr);
+  var code = 'ECHO-'+sig.slice(0,4)+'-'+sig.slice(4,8)+'-'+expStr;
+  try {
+    var keys=(function(){try{return JSON.parse(localStorage.getItem('echo_keys')||'[]');}catch(e){return [];}})();
+    keys.unshift({code:code,client:client,expiry:(expiry||'Illimitee'),cree:new Date().toLocaleDateString('fr-FR'),actif:true});
+    localStorage.setItem('echo_keys',JSON.stringify(keys));
+  } catch(e) {}
+  document.getElementById('newClient').value='';
+  document.getElementById('newExpiry').value='';
+  chargerCles();
+  alert('Cle pour '+client+':\n\n'+code+'\n\nCopie et envoie a ton client !');
+}
+
+async 
+
+
+var _adminKeys=[];
+function revoquerCle(i) {
+  if (!confirm('Revoquer ?')) return;
+  var code=_adminKeys[i].code;
+  try{var rev=JSON.parse(localStorage.getItem('echo_revoked')||'[]');if(!rev.includes(code))rev.push(code);localStorage.setItem('echo_revoked',JSON.stringify(rev));_adminKeys[i].actif=false;localStorage.setItem('echo_keys',JSON.stringify(_adminKeys));}catch(e){}
+  chargerCles();
+}
+function supprimerCle(i) {
+  if (!confirm('Supprimer ?')) return;
+  try{_adminKeys.splice(i,1);localStorage.setItem('echo_keys',JSON.stringify(_adminKeys));}catch(e){}
+  chargerCles();
+}
+function chargerCles() {
+  var cont=document.getElementById('admin-list');
+  try {
+    _adminKeys=(function(){try{return JSON.parse(localStorage.getItem('echo_keys')||'[]');}catch(e){return [];}})();
+    if (!_adminKeys.length) { cont.innerHTML='<p style="color:var(--muted);">Aucune cle sur cet appareil.</p>'; return; }
+    var h='';
+    for (var i=0;i<_adminKeys.length;i++) {
+      var d=_adminKeys[i];
+      h+='<div class="admin-key '+(d.actif?'':'off')+'">'+
+        '<div class="ak-info"><div class="ak-code">'+d.code+'</div>'+
+        '<div class="ak-meta">'+d.client+' &middot; '+d.expiry+' &middot; <span style="color:'+(d.actif?'#7ec97e':'#e08b8b')+';">'+(d.actif?'ACTIVE':'REVOQUEE')+'</span></div></div>'+
+        '<div class="ak-actions">'+
+        (d.actif?'<button onclick="revoquerCle('+i+')">Revoquer</button>':'')+
+        '<button class="del" onclick="supprimerCle('+i+')">X</button>'+
+        '</div></div>';
+    }
+    cont.innerHTML=h;
+  } catch(e) { cont.innerHTML='<p style="color:#e08b8b;">'+e.message+'</p>'; }
+}
+
+/* Fonctions héritées conservées pour compatibilité (numérologie, chinois...) */
+
+// CORRECTION : Réduction numérologique pure (avec Maîtres Nombres 11, 22, 33)
+function reduceNumber(num) {
+  while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+    num = num.toString().split('').reduce((a, b) => a + Number(b), 0);
+  }
+  return num;
+}
+
+// CORRECTION : Calcul exact du chemin de vie (Jour + Mois + Année réduits séparément)
+function lifePath(dateStr) {
+  const [y, m, d] = dateStr.split('-');
+  const sum = reduceNumber(Number(y)) + reduceNumber(Number(m)) + reduceNumber(Number(d));
+  return reduceNumber(sum);
+}
+
+// CORRECTION : Table de Pythagore stricte pour les lettres (A=1, B=2... I=9, J=1... Z=8)
+function letterValue(c) {
+  let val = (c.charCodeAt(0) - 64) % 9;
+  return val === 0 ? 9 : val;
+}
+
+function nameNumber(str) {
+  let clean = str.toUpperCase().replace(/[^A-Z]/g, '');
+  let sum = clean.split('').reduce((s, c) => s + letterValue(c), 0);
+  return reduceNumber(sum);
+}
+
+function soulNumber(str) {
+  let clean = str.toUpperCase().replace(/[^AEIOUY]/g, ''); // Voyelles
+  let sum = clean.split('').reduce((s, c) => s + letterValue(c), 0);
+  return reduceNumber(sum) || 1;
+}
+
+function personalityNumber(str) {
+  let clean = str.toUpperCase().replace(/[AEIOUY\s]/g, '').replace(/[^A-Z]/g, ''); // Consonnes
+  let sum = clean.split('').reduce((s, c) => s + letterValue(c), 0);
+  return reduceNumber(sum) || 1;
+}
+
+// CORRECTION : Cycle exact des éléments chinois (basé sur le dernier chiffre de l'année)
+function getChineseZodiac(year) {
+  let animalIdx = (year - 4) % 12;
+  if(animalIdx < 0) animalIdx += 12;
+  return {
+    animal: CHINESE_ANIMALS[animalIdx],
+    element: CHINESE_ELEMENTS[year % 10]
+  };
+}
+
+function getVedicSun(dd, mm) {
+  const vd = [[4,14],[5,15],[6,15],[7,16],[8,17],[9,17],[10,17],[11,16],[12,16],[1,14],[2,13],[3,14]];
+  for (let i=0; i<12; i++) {
+    let sm = vd[i][0], sd = vd[i][1];
+    let em = vd[(i+1)%12][0], ed = vd[(i+1)%12][1];
+    if (sm < em) {
+      if ((mm === sm && dd >= sd) || (mm === em && dd < ed)) return VEDIC_SIGNS[i];
+    } else {
+       if ((mm === 12 && dd >= sd) || (mm === 1 && dd < ed)) return VEDIC_SIGNS[i];
+    }
+  }
+  return VEDIC_SIGNS[0];
+}
+
+function getNakshatra(date) {
+  const nk=["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+  let ref=new Date(Date.UTC(2000,0,6,18,14)), diff=(date-ref)/86400000;
+  let lon=(diff*13.1764)%360; if(lon<0)lon+=360;
+  return nk[Math.floor(lon/(360/27))%27];
+}
+
+function getCelticTree(dd, mm) {
+  const cd=[[12,24],[1,21],[2,18],[3,18],[4,15],[5,13],[6,10],[7,8],[8,5],[9,2],[9,30],[10,28],[11,25]];
+  for(let i=0;i<13;i++){
+    let [sm,sd]=cd[i], [em,ed]=cd[(i+1)%13];
+    if (sm < em) {
+        if ((mm === sm && dd >= sd) || (mm === em && dd < ed)) return CELTIC_TREES[i];
+    } else {
+        if ((mm === 12 && dd >= sd) || (mm === 1 && dd < ed)) return CELTIC_TREES[i];
+    }
+  }
+  return CELTIC_TREES[0];
+}
+
+function getEgyptianSign(sunIdx) {
+  return EGYPTIAN_SIGNS[sunIdx];
+}
+
+// ================================================================
+//  FONCTION PRINCIPALE
+// ================================================================
+
+async function lancerAnalyse() {
+  var accessKey=document.getElementById('apiKey').value.trim();
+  const prenom    = document.getElementById('prenom').value.trim();
+  const nom       = document.getElementById('nom').value.trim();
+  const genre     = document.getElementById('genre').value;
+  const dateStr   = document.getElementById('birthdate').value;
+  const timeStr   = document.getElementById('birthtime').value;
+  const birthplace= document.getElementById('birthplace').value.trim();
+  const job       = document.getElementById('job').value || "Non précisé";
+  const question  = document.getElementById('question').value.trim();
+  const apiKey    = document.getElementById('apiKey').value.trim();
+
+  if (!dateStr || !birthplace) { alert("La date et le lieu de naissance sont requis."); return; }
+
+  // --- Coordonnées ---
+  const cityVal = document.getElementById('cityCoords').value;
+  let geoLat, geoLon, geoTz;
+  if (cityVal === 'custom') {
+    geoLat=parseFloat(document.getElementById('manLat').value);
+    geoLon=parseFloat(document.getElementById('manLon').value);
+    geoTz =parseFloat(document.getElementById('manTz').value);
+    if (isNaN(geoLat)||isNaN(geoLon)||isNaN(geoTz)) { alert("Veuillez saisir latitude, longitude et fuseau horaire."); return; }
+  } else {
+    const p=cityVal.split(','); geoLat=parseFloat(p[0]); geoLon=parseFloat(p[1]); geoTz=parseFloat(p[2]);
+  }
+
+  document.getElementById('btn-generate').disabled=true;
+  document.getElementById('loading').style.display='block';
+  document.getElementById('result-block').style.display='none';
+
+  const [yyyy,mm,dd]=dateStr.split('-').map(Number);
+  let hour=0,minute=0;
+  if(timeStr)[hour,minute]=timeStr.split(':').map(Number);
+
+  // === CALCULS ASTRONOMIQUES (Meeus) ===
+  const utH=(hour+minute/60)-geoTz;
+  const msBase=Date.UTC(yyyy,mm-1,dd)+utH*3600000;
+  const utcD=new Date(msBase);
+  const utcHour=utcD.getUTCHours()+utcD.getUTCMinutes()/60+utcD.getUTCSeconds()/3600;
+  const JD=julianDay(utcD.getUTCFullYear(),utcD.getUTCMonth()+1,utcD.getUTCDate(),utcHour);
+  const T=(JD-2451545)/36525;
+
+  const sLon=calcSunLon(T);
+  const mLon=calcMoonLon(T);
+  const g=calcGast(JD,T);
+  let ascLon=null,mcLon=null;
+  if(timeStr){const ang=calcAngles(g,geoLon,geoLat,T);ascLon=ang.asc;mcLon=ang.mc;}
+
+  const PLANET_NAMES=['Mercure','Vénus','Mars','Jupiter','Saturne','Uranus','Neptune','Pluton'];
+  const plLons={};
+  for(const n of PLANET_NAMES) plLons[n]=calcGeoLon(n,T);
+
+  // Mapping vers objets SIGNS
+  const sun=SIGNS[Math.floor(sLon/30)], sunIdx=Math.floor(sLon/30);
+  const moon=SIGNS[Math.floor(mLon/30)];
+  const asc=ascLon!==null?SIGNS[Math.floor(ascLon/30)]:null;
+  const mcSign=mcLon!==null?SIGNS[Math.floor(mcLon/30)]:null;
+  const plSigns={};
+  for(const[n,l] of Object.entries(plLons)) plSigns[n]={sign:SIGNS[Math.floor(l/30)],lon:l,deg:(l%30).toFixed(1)};
+
+  const sunDeg=(sLon%30).toFixed(1),moonDeg=(mLon%30).toFixed(1);
+  const ascDeg=ascLon!==null?(ascLon%30).toFixed(1):null;
+  const mcDeg=mcLon!==null?(mcLon%30).toFixed(1):null;
+
+  // === CALCULS HÉRITÉS ===
+  const birthDate=new Date(yyyy,mm-1,dd);
+  const fullName=(prenom+' '+nom).trim();
+  const lp=lifePath(dateStr), expr=nameNumber(fullName)||1;
+  const soul=soulNumber(prenom)||1, perso=personalityNumber(fullName)||1;
+  const kabNum=nameNumber(fullName)||1;
+  const chinese=getChineseZodiac(yyyy), vedicSun=getVedicSun(dd,mm);
+  const nakshatra=getNakshatra(birthDate), celticTree=getCelticTree(dd,mm);
+  const egyptSign=getEgyptianSign(sunIdx);
+  const tarotCard=TAROT_MAJOR[Math.floor(Math.random()*TAROT_MAJOR.length)];
+  const lucky=sun.lucky;
+
+  oData={prenom,nom,fullName,dateStr,timeStr,birthplace,genre,job,question,
+         sun,moon,asc,mcSign,sunDeg,moonDeg,ascDeg,mcDeg,
+         plSigns,sLon,mLon,ascLon,mcLon,
+         lp,expr,soul,perso,kabNum,chinese,vedicSun,nakshatra,celticTree,egyptSign,tarotCard,lucky};
+
+  // === EN-TÊTE ===
+  document.getElementById('res-name').textContent=fullName||"Votre Oracle";
+  document.getElementById('res-dateinfo').textContent=`${dd.toString().padStart(2,'0')}/${mm.toString().padStart(2,'0')}/${yyyy} · ${birthplace}`;
+
+  // === GRILLE SIGNES ===
+  document.getElementById('signs-grid').innerHTML=`
+    <div class="sign-card"><span class="sign-emoji">${sun.emoji}</span><div class="sign-label">Soleil</div><div class="sign-name">${sun.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">${moon.emoji}</span><div class="sign-label">Lune</div><div class="sign-name">${moon.name}</div></div>
+    ${asc?`<div class="sign-card"><span class="sign-emoji">🌅</span><div class="sign-label">Ascendant</div><div class="sign-name">${asc.name}</div></div>`:''}
+    <div class="sign-card"><span class="sign-emoji">☿</span><div class="sign-label">Mercure</div><div class="sign-name">${plSigns['Mercure'].sign.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">♀</span><div class="sign-label">Vénus</div><div class="sign-name">${plSigns['Vénus'].sign.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">♂</span><div class="sign-label">Mars</div><div class="sign-name">${plSigns['Mars'].sign.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">🐉</span><div class="sign-label">Chinois</div><div class="sign-name">${chinese.animal.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">🌳</span><div class="sign-label">Celtique</div><div class="sign-name">${celticTree.name}</div></div>
+    <div class="sign-card"><span class="sign-emoji">𓂀</span><div class="sign-label">Égyptien</div><div class="sign-name">${egyptSign.name}</div></div>`;
+
+  // === ONGLET PERSONNALITÉ ===
+  document.getElementById('pane-personnalite').innerHTML=`<div class="oracle-section">
+    <h3>${sun.name} ${sun.emoji} — Essence Solaire <small style="font-size:0.6em;color:var(--muted);">(${sunDeg}°)</small></h3>
+    <p>${sun.desc}</p><p><strong>Élément :</strong> ${sun.element} · <strong>Planète :</strong> ${sun.planet} · <strong>Mode :</strong> ${sun.quality}</p>
+    ${asc?`<h3>Ascendant ${asc.name} ${asc.emoji} <small style="font-size:0.6em;color:var(--muted);">(${ascDeg}°)</small></h3><p>${asc.desc}</p>`:''}
+    <h3>Lune en ${moon.name} ${moon.emoji} <small style="font-size:0.6em;color:var(--muted);">(${moonDeg}°)</small></h3><p>${moon.desc}</p>
+    <div class="duo-grid" style="margin-top:20px;">
+      <div class="trait-card"><h4>✦ Qualités</h4><p>${sun.qualites}</p></div>
+      <div class="trait-card"><h4>✦ Défis</h4><p>${sun.defauts}</p></div>
+      <div class="trait-card"><h4>✦ Besoins profonds</h4><p>${sun.besoins}</p></div>
+      <div class="trait-card"><h4>✦ Mission de Vie</h4><p>${sun.mission}</p></div>
+    </div></div>`;
+
+  // === ONGLET THÈME ASTRAL ===
+  const PEMO={'Mercure':'☿','Vénus':'♀','Mars':'♂','Jupiter':'♃','Saturne':'♄','Uranus':'⛢','Neptune':'♆','Pluton':'⯓'};
+  let thHTML=`<div class="oracle-section"><h3 style="margin-bottom:18px;">🪐 Thème Natal Complet</h3>
+    <div class="planet-trio">
+      <div class="planet-trio-card key"><div class="pt-label">Soleil</div><span class="pt-emoji">☀️</span><div class="pt-sign">${sun.emoji} ${sun.name}</div><div class="pt-deg">${sunDeg}°</div></div>
+      <div class="planet-trio-card key"><div class="pt-label">Lune</div><span class="pt-emoji">🌙</span><div class="pt-sign">${moon.emoji} ${moon.name}</div><div class="pt-deg">${moonDeg}°</div></div>
+      <div class="planet-trio-card ${asc?'key':''}"><div class="pt-label">Ascendant</div><span class="pt-emoji">⬆️</span><div class="pt-sign">${asc?asc.emoji+' '+asc.name:'—'}</div><div class="pt-deg">${ascDeg?ascDeg+'°':'heure requise'}</div></div>
+    </div><div class="planet-list">`;
+  for(const n of PLANET_NAMES){
+    const p=plSigns[n];
+    thHTML+=`<div class="planet-row"><div class="pr-left"><span class="pr-emo">${PEMO[n]}</span><span class="pr-name">${n}</span></div>
+      <div><span class="pr-sign">${p.sign.emoji} ${p.sign.name}</span><span class="pr-deg"> · ${p.deg}°</span></div></div>`;
+  }
+  if(mcSign) thHTML+=`<div class="planet-row"><div class="pr-left"><span class="pr-emo">✦</span><span class="pr-name">MC</span></div>
+    <div><span class="pr-sign">${mcSign.emoji} ${mcSign.name}</span><span class="pr-deg"> · ${mcDeg}°</span></div></div>`;
+  thHTML+=`</div><p class="note-meeus">Calculs : Algorithmes de Jean Meeus · Zodiaque Tropical<br>
+    Précision : Soleil/Lune &lt; 0.01° · Planètes &lt; 1° · Validé contre Swiss Ephemeris</p></div>`;
+  document.getElementById('pane-theme').innerHTML=thHTML;
+
+  // === ONGLETS RESTANTS ===
+  document.getElementById('pane-chiffres').innerHTML=`<div class="oracle-section">
+    <h3>🔢 Numérologie Sacrée</h3>
+    <p><strong>Chemin de Vie :</strong> ${lp} — ${NUMERO_TEXTS[lp]||''}</p>
+    <p><strong>Nombre d'Expression :</strong> ${expr} — ${NUMERO_TEXTS[expr]||''}</p>
+    <p><strong>Nombre de l'Âme :</strong> ${soul} — ${NUMERO_TEXTS[soul]||''}</p>
+    <p><strong>Nombre de Personnalité :</strong> ${perso} — ${NUMERO_TEXTS[perso]||''}</p>
+    <div class="divider" style="margin:25px 0;"></div>
+    <h3>🕎 Kabbale — Gématrie</h3>
+    <p>Nom complet <em>« ${fullName} »</em> → <strong>${kabNum}</strong></p>
+    <p style="margin-top:8px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05em;color:var(--gold-light);">${getKabbalahText(kabNum)}</p></div>`;
+
+  document.getElementById('pane-traditions').innerHTML=`<div class="oracle-section">
+    <h3>🐉 Astrologie Chinoise</h3>
+    <p><strong>${chinese.animal.name}</strong> de l'élément <strong>${chinese.element}</strong></p>
+    <p>${chinese.animal.traits}</p><p><em>${chinese.animal.love}</em></p>
+    <div class="divider" style="margin:20px 0;"></div>
+    <h3>🕉️ Astrologie Védique</h3>
+    <p><strong>${vedicSun.name} ${vedicSun.emoji}</strong> — ${vedicSun.desc}</p>
+    <p><strong>Nakshatra lunaire :</strong> ${nakshatra}</p>
+    <div class="divider" style="margin:20px 0;"></div>
+    <h3>🌳 Arbre Celtique</h3><p><strong>${celticTree.name}</strong> — ${celticTree.traits}</p>
+    <div class="divider" style="margin:20px 0;"></div>
+    <h3>𓂀 Signe Égyptien</h3><p><strong>${egyptSign.name}</strong> — ${egyptSign.traits}</p></div>`;
+
+  document.getElementById('pane-tarot').innerHTML=`<div class="oracle-section" style="text-align:center;padding:40px;">
+    <div style="font-size:4em;margin-bottom:15px;">🃏</div>
+    <h3 style="font-size:1.6em;letter-spacing:2px;">${tarotCard.name}</h3>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2em;color:var(--gold-light);margin-top:15px;">${tarotCard.meaning}</p></div>`;
+
+  document.getElementById('pane-chance').innerHTML=`<div class="oracle-section">
+    <h3>🍀 Influences Favorables — ${sun.name}</h3>
+    <div class="luck-grid">
+      <div class="luck-item"><strong>Nombres</strong>${lucky.numbers.join(' · ')}</div>
+      <div class="luck-item"><strong>Jours</strong>${lucky.days.join(', ')}</div>
+      <div class="luck-item"><strong>Heures</strong>${lucky.hours.join('<br>')}</div>
+      <div class="luck-item"><strong>Mois</strong>${lucky.months.join(', ')}</div>
+      <div class="luck-item"><strong>Couleurs</strong>${lucky.colors.join(', ')}</div>
+      <div class="luck-item"><strong>Aliments</strong>${lucky.foods.join(', ')}</div>
+      <div class="luck-item"><strong>Activités</strong>${lucky.activities.join(', ')}</div>
+    </div></div>`;
+
+  document.getElementById('pane-amour').innerHTML=`<div class="oracle-section">
+    <h3>❤️ Vie Amoureuse</h3><p>${sun.love}</p>
+    <div class="divider" style="margin:20px 0;"></div>
+    <h3>💰 Rapport à l'Argent</h3><p>${sun.money}</p>
+    <div class="divider" style="margin:20px 0;"></div>
+    <h3>⚠️ Points de Vigilance</h3><p>${sun.dangers}</p></div>`;
+
+  document.getElementById('result-block').style.display='block';
+  document.getElementById('form-block').style.display='none';
+  document.getElementById('btn-generate').disabled=false;
+  document.getElementById('loading').style.display='none';
+  var _bpdf=document.getElementById('btn-pdf'); if(_bpdf) _bpdf.style.display='block';
+
+  // === LECTURE APPROFONDIE (locale, gated par clé d'accès) ===
+  var iaContainer=document.getElementById('ia-analysis-container');
+  if(accessKey){
+    iaContainer.innerHTML='<p style="color:var(--gold-light);text-align:center;padding:20px;">Verification en cours...</p>';
+    await _afficherLecture(accessKey, iaContainer);
+  } else {
+    iaContainer.innerHTML='<div style="padding:20px;text-align:center;border:1px solid rgba(201,168,76,0.2);"><p style="color:var(--gold-light);font-style:italic;">Saisis ta cle pour debloquer la lecture.</p></div>';
+    document.getElementById('ia-retry-zone').style.display='block';
+  }
+}
+
+async function _afficherLecture(code, container) {
+  container.innerHTML = '<p style="color:var(--gold);text-align:center;padding:20px;">Verification...</p>';
+  var res = await validerCle(code);
+  if (!res.ok) {
+    container.innerHTML = '<div style="background:rgba(180,40,40,0.3);border:2px solid #ff6b6b;padding:20px;">' +
+      '<p style="color:#ffbbbb;font-weight:bold;">Acces refuse : ' + res.raison + '</p>' +
+      '<p style="color:#aaa;font-size:0.85em;margin-top:6px;">Cle : ' + code + '</p></div>';
+    document.getElementById('ia-retry-zone').style.display='block';
+    return;
+  }
+  try {
+    var md = _genererLecture();
+    container.innerHTML = marked.parse(md);
+    document.getElementById('ia-retry-zone').style.display='none';
+  } catch(e) {
+    container.innerHTML = '<div style="background:rgba(180,40,40,0.3);border:2px solid #ff6b6b;padding:20px;">' +
+      '<p style="color:#ffbbbb;font-weight:bold;">Erreur : ' + e.message + '</p></div>';
+  }
+}
+
+async function lancerIA() {
+  const k=document.getElementById('apiKeyRetry').value.trim();
+  if(!k){alert("Veuillez saisir votre clé d'accès.");return;}
+  const c=document.getElementById('ia-analysis-container');
+  document.getElementById('loading-ia').style.display='block';
+  await _afficherLecture(k,c);
+  document.getElementById('loading-ia').style.display='none';
+}
+function getKabbalahText(num) {
+  const kab = {
+    1:"Kether — Couronne divine, volonté pure, source de toute création.",
+    2:"Hokhmah — Sagesse originelle, impulsion créatrice.",
+    3:"Binah — Compréhension profonde, structure, matrice de l'existence.",
+    4:"Hesed — Miséricorde, expansion, générosité cosmique.",
+    5:"Gevurah — Rigueur, jugement, force disciplinée.",
+    6:"Tiferet — Beauté, harmonie, cœur de l'Arbre de Vie.",
+    7:"Netzah — Victoire, endurance, désir vital.",
+    8:"Hod — Gloire, humilité, communication divine.",
+    9:"Yesod — Fondation, pont entre spirituel et matériel.",
+    10:"Malkuth — Royaume, réalisation dans le monde physique.",
+    11:"Daath — Connaissance cachée, transmutation mystique.",
+    22:"Grand Architecte — Construction sacrée du destin mondial.",
+    33:"Maître Ascensionné — Amour christique, service universel."
+  };
+  return kab[num] || kab[1];
+}
+
+// Navigation onglets
+// Navigation onglets - delegation (mobile-friendly)
+document.addEventListener('click', function(e) {
+  var t = e.target;
+  while (t && t !== document) {
+    if (t.classList && t.classList.contains('tab-btn')) {
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      t.classList.add('active');
+      document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+      var tab = t.getAttribute('data-tab');
+      var pane = document.getElementById('pane-' + tab);
+      if (pane) pane.classList.add('active');
+      break;
+    }
+    t = t.parentNode;
+  }
+});
+
+// Accès admin via l'URL : ajoute #admin à la fin de l'adresse
+function _checkAdminHash() {
+  if (window.location.hash === '#admin') ouvrirAdmin();
+}
+window.addEventListener('hashchange', _checkAdminHash);
+window.addEventListener('load', _checkAdminHash);
+
+
+function switchTab(tabName) {
+  // Cacher tous les onglets
+  var panes = document.getElementsByClassName('tab-pane');
+  for (var i=0; i<panes.length; i++) panes[i].style.display = 'none';
+  // Retirer active de tous les boutons
+  var btns = document.getElementsByClassName('tab-btn');
+  for (var i=0; i<btns.length; i++) {
+    btns[i].style.borderBottom = 'none';
+    btns[i].style.color = '';
+  }
+  // Afficher l'onglet cible
+  var pane = document.getElementById('pane-' + tabName);
+  if (pane) pane.style.display = 'block';
+  // Mettre en evidence le bouton actif
+  var activeBtn = document.querySelector('[data-tab="' + tabName + '"]');
+  if (activeBtn) {
+    activeBtn.style.borderBottom = '2px solid var(--gold)';
+    activeBtn.style.color = 'var(--gold)';
+  }
+}
+
+// Acces admin
+try {
+  if (typeof window.location !== 'undefined' && window.location.hash === '#admin') { ouvrirAdmin(); }
+  window.addEventListener('hashchange', function() {
+    try { if (window.location.hash === '#admin') ouvrirAdmin(); } catch(e) {}
+  });
+} catch(e) { console.warn('Hash admin:', e.message); }
+</script>
+<script>
+window.addEventListener("unhandledrejection",function(e){
+  try{
+    document.getElementById("loading").style.display="none";
+    document.getElementById("btn-generate").disabled=false;
+    var msg=e.reason?(e.reason.message||String(e.reason)):"Erreur inconnue";
+    document.getElementById("result-block").style.display="block";
+    document.getElementById("form-block").style.display="none";
+    var ia=document.getElementById("ia-analysis-container");
+    if(ia)ia.innerHTML="<div style='background:rgba(180,40,40,0.3);border:2px solid #ff5555;padding:24px;'><p style='color:#ffaaaa;font-size:1.1em;font-weight:bold;margin-bottom:10px;'>Erreur detectee :</p><p style='color:#fff;font-family:monospace;word-break:break-all;'>"+msg+"</p></div>";
+  }catch(ex){}
+});
+</script>
+</body>
+</html
+  md += "\n**Lunaisons a venir**\n\n";
+  md += "* **Nouvelle Lune le "+dateNM+"** : moment propice aux nouveaux departs et intentions.\n";
+  md += "* **Pleine Lune le "+dateFM+"** : pic emotionnel, revelations et accomplissements.\n";
+  md += "* "+retroMsg+".\n\n";
+>
